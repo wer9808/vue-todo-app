@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 import TodoHeader from "./components/TodoHeader.vue";
 import TodoInput from "./components/TodoInput.vue";
 import TodoList from "./components/TodoList.vue";
@@ -30,26 +30,28 @@ const convertStoreTodo = (storeTodo) => {
   };
 };
 const storedTodos = todoStore.selectAll().map((val) => convertStoreTodo(val));
-const allTodos = ref(storedTodos);
+const allTodos = reactive(storedTodos);
 
 const displayTodos = computed(() => {
   if (currentFilter.value === "completed") {
-    return allTodos.value.filter((todo) => {
+    return allTodos.filter((todo) => {
       return todo.completed;
     });
   }
   if (currentFilter.value === "incompleted") {
-    return allTodos.value.filter((todo) => {
+    return allTodos.filter((todo) => {
       return !todo.completed;
     });
   }
-  return allTodos.value;
+  return allTodos;
 });
 
-const selectedTodos = [];
+const selectedTodos = computed(() => {
+  return allTodos.filter((todo) => todo.selected);
+});
 
 const findTodoById = (todoId) => {
-  return allTodos.value.find((item) => item.id === todoId);
+  return allTodos.find((todo) => todo.id === todoId);
 };
 
 const createTodo = ({ content, until }) => {
@@ -62,19 +64,20 @@ const createTodo = ({ content, until }) => {
     until: until,
     createdAt: datetime,
   };
-  allTodos.value.push(newTodo);
+  allTodos.push(newTodo);
   todoStore.upsert(newTodo);
 };
 
-const updateTodo = (todo, { content, until }) => {
-  todo.content = content;
-  todo.until = until;
-  todoStore.upsert(todo);
+const updateTodo = (todo, { content, until, completed }) => {
+  if (content) todo.content = content;
+  if (until) todo.until = until;
+  if (completed) todo.completed = completed;
+  todoStore.update(todo);
 };
 
 const deleteTodo = (todo) => {
-  const idx = allTodos.value.indexOf(todo);
-  allTodos.value.splice(idx, 1);
+  const idx = allTodos.indexOf(todo);
+  allTodos.splice(idx, 1);
   todoStore.delete(todo);
 };
 
@@ -90,7 +93,7 @@ const handleToggleTodoComplete = (todoId) => {
   const todo = findTodoById(todoId);
   if (!todo) return;
   todo.completed = !todo.completed;
-  todoStore.update(todo);
+  updateTodo(todo, { completed: todo.completed });
 };
 
 const handleDeleteTodo = (todoId) => {
@@ -108,15 +111,32 @@ const handleEditTodo = (todoId, update) => {
 const handleSelectTodo = (todoId) => {
   const todo = findTodoById(todoId);
   if (!todo) return;
-  if (!todo.selected) {
-    selectedTodos.push(todo);
-    todo.selected = true;
-  } else {
-    const idx = selectedTodos.indexOf(todo);
-    selectedTodos.splice(idx, 1);
+  todo.selected = !todo.selected;
+};
+
+const handleSelectMultiTodos = (todoIds, selected) => {
+  todoIds.forEach((todoId) => {
+    const todo = findTodoById(todoId);
+    if (!todo) return;
+    todo.selected = selected;
+  });
+};
+
+const handleCompleteSelectedTodos = () => {
+  const targetTodos = selectedTodos.value.slice();
+  targetTodos.forEach((todo) => {
+    todo.completed = true;
     todo.selected = false;
-  }
-  console.log(selectedTodos);
+    updateTodo(todo, { completed: todo.completed });
+  });
+};
+
+const handleDeleteSelectedTodos = () => {
+  const targetTodos = selectedTodos.value.slice();
+  targetTodos.forEach((todo) => {
+    deleteTodo(todo);
+    todo.selected = false;
+  });
 };
 </script>
 
@@ -131,10 +151,14 @@ const handleSelectTodo = (todoId) => {
         />
         <TodoList
           :items="displayTodos"
+          :selectedItems="selectedTodos"
           @toggle-todo-complete="handleToggleTodoComplete"
           @delete-todo="handleDeleteTodo"
           @edit-todo="handleEditTodo"
           @select-todo="handleSelectTodo"
+          @select-multi-todos="handleSelectMultiTodos"
+          @complete-selected-todos="handleCompleteSelectedTodos"
+          @delete-selected-todos="handleDeleteSelectedTodos"
         />
       </div>
       <div class="todo-container-sticky">

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import TodoListItem from "./TodoListItem.vue";
 
 const emit = defineEmits([
@@ -7,10 +7,19 @@ const emit = defineEmits([
   "delete-todo",
   "edit-todo",
   "select-todo",
+  "select-multi-todos",
+  "complete-selected-todos",
+  "delete-selected-todos",
 ]);
 
-const { items } = defineProps(["items"]);
+const { items, selectedItems } = defineProps(["items", "selectedItems"]);
 
+const canMultiComplete = computed(() => selectedItems.length > 0);
+const canMultiDelete = computed(() => selectedItems.length > 0);
+const allSelected = () => {
+  const anyUnselected = items.find((item) => item.selected === false);
+  return !anyUnselected;
+};
 const castEvent = (eventName) => {
   return (...args) => {
     emit(eventName, ...args);
@@ -21,17 +30,35 @@ const handleToggleTodoComplete = castEvent("toggle-todo-complete");
 const handleDeleteTodo = castEvent("delete-todo");
 const handleEditTodo = castEvent("edit-todo");
 const handleSelectTodo = castEvent("select-todo");
+const handleMultiComplete = castEvent("complete-selected-todos");
+const handleMultiDelete = castEvent("delete-selected-todos");
+const handleSelectAll = () => {
+  const todoIds = items.map((todo) => todo.id);
+  emit("select-multi-todos", todoIds, !allSelected());
+};
 </script>
 
 <template>
   <div class="todo-list">
-    <!-- 할 일 목록이 있을 때 (완료 시 .todo__item--completed 클래스 추가 )-->
     <div class="todo-list-header todo-list-item">
-      <div class="todo-list-item-column">완료</div>
+      <div class="todo-list-item-column">선택</div>
       <div class="todo-list-item-column">할일</div>
       <div class="todo-list-item-column">진행상태</div>
       <div class="todo-list-item-column">종료일</div>
-      <div class="todo-list-item-column">수정/삭제</div>
+      <div class="todo-list-item-column">수정 / 삭제</div>
+    </div>
+    <div class="todo-list-control">
+      <button @click="handleSelectAll">전체 선택</button>
+      <button :disabled="!canMultiComplete" @click="handleMultiComplete">
+        완료
+      </button>
+      <button
+        class="multi-delete-btn"
+        :disabled="!canMultiDelete"
+        @click="handleMultiDelete"
+      >
+        삭제
+      </button>
     </div>
     <div class="todo-list-items" v-if="items.length > 0">
       <TodoListItem
@@ -59,10 +86,6 @@ const handleSelectTodo = castEvent("select-todo");
   justify-content: start;
   align-items: stretch;
   gap: 4px;
-}
-
-.todo-list-items {
-  flex: 1 1 auto;
 }
 
 .todo-list-header {
@@ -96,6 +119,38 @@ const handleSelectTodo = castEvent("select-todo");
 }
 .todo-list-item-column:nth-child(5) {
   flex: 0 0 160px;
+}
+
+.todo-list-control {
+  flex: 0 0 auto;
+  margin: 0 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+  gap: 4px;
+}
+
+.todo-list-control > button {
+  color: dodgerblue;
+  background: none;
+  border: 0;
+  padding: 0 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.todo-list-control > .multi-delete-btn {
+  color: crimson;
+}
+
+.todo-list-control > button:disabled {
+  color: lightslategray;
+  cursor: not-allowed;
+}
+
+.todo-list-items {
+  flex: 1 1 auto;
 }
 
 .todo-list-no-item {
