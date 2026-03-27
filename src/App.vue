@@ -24,6 +24,7 @@ const convertStoreTodo = (storeTodo) => {
     id: storeTodo.id,
     content: storeTodo.content,
     completed: storeTodo.completed,
+    selected: false,
     until: new Date(storeTodo.until),
     createdAt: new Date(storeTodo.createdAt),
   };
@@ -44,6 +45,8 @@ const displayTodos = computed(() => {
   }
   return allTodos.value;
 });
+
+const selectedTodos = [];
 
 const findTodoById = (todoId) => {
   return allTodos.value.find((item) => item.id === todoId);
@@ -101,6 +104,20 @@ const handleEditTodo = (todoId, update) => {
   if (!todo) return;
   updateTodo(todo, update);
 };
+
+const handleSelectTodo = (todoId) => {
+  const todo = findTodoById(todoId);
+  if (!todo) return;
+  if (!todo.selected) {
+    selectedTodos.push(todo);
+    todo.selected = true;
+  } else {
+    const idx = selectedTodos.indexOf(todo);
+    selectedTodos.splice(idx, 1);
+    todo.selected = false;
+  }
+  console.log(selectedTodos);
+};
 </script>
 
 <template>
@@ -117,6 +134,7 @@ const handleEditTodo = (todoId, update) => {
           @toggle-todo-complete="handleToggleTodoComplete"
           @delete-todo="handleDeleteTodo"
           @edit-todo="handleEditTodo"
+          @select-todo="handleSelectTodo"
         />
       </div>
       <div class="todo-container-sticky">

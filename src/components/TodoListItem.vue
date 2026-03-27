@@ -3,7 +3,13 @@ import { DateUtil } from "@/libs/DateUtil";
 import { computed, ref } from "vue";
 import TodoEditModal from "./TodoEditModal.vue";
 
-const emit = defineEmits(["toggle-todo-complete", "delete-todo", "edit-todo"]);
+const emit = defineEmits([
+  "toggle-todo-complete",
+  "delete-todo",
+  "edit-todo",
+  "select-todo",
+]);
+
 const { todo } = defineProps({
   todo: {
     id: Number,
@@ -34,6 +40,10 @@ const deleteTodo = () => {
   emit("delete-todo", todo.id);
 };
 
+const handleSelectTodo = () => {
+  emit("select-todo", todo.id);
+};
+
 const handleStartEdit = () => {
   if (!modifying.value) {
     if (todo.completed) return;
@@ -52,13 +62,13 @@ const handleCancelEdit = () => {
 </script>
 
 <template>
-  <div class="todo__item todo-list-item">
+  <div class="todo-list-item">
     <div class="todo-list-item-check todo-list-item-column">
       <input
         type="checkbox"
         :id="`chk-${todo.id}`"
-        :checked="todo.completed"
-        @input="toggleTodoComplete"
+        :checked="todo.selected"
+        @input="handleSelectTodo"
       />
       <label
         :for="`chk-${todo.id}`"
@@ -75,13 +85,18 @@ const handleCancelEdit = () => {
         class="material-symbols-rounded"
         :class="todo.completed ? `completed` : `incompleted`"
       >
-        {{ todo.completed ? "done_outline" : "hourglass_bottom" }}
+        {{ todo.completed ? "check_circle" : "hourglass_bottom" }}
       </span>
     </div>
     <span class="todo-list-item-until todo-list-item-column">{{
       untilDateString
     }}</span>
     <div class="todo-list-item-control todo-list-item-column">
+      <span
+        class="material-symbols-outlined complete-icon"
+        @click="toggleTodoComplete"
+        >check</span
+      >
       <span class="material-symbols-outlined edit-icon" @click="handleStartEdit"
         >edit</span
       >
@@ -131,13 +146,13 @@ const handleCancelEdit = () => {
   flex: 1 1 200px;
 }
 .todo-list-item-column:nth-child(3) {
-  flex: 0 0 100px;
+  flex: 0 0 80px;
 }
 .todo-list-item-column:nth-child(4) {
   flex: 0 0 200px;
 }
 .todo-list-item-column:nth-child(5) {
-  flex: 0 0 100px;
+  flex: 0 0 160px;
 }
 
 .todo-list-item-content {
@@ -176,12 +191,19 @@ const handleCancelEdit = () => {
   cursor: pointer;
 }
 
+.todo-list-item-control > .complete-icon {
+  color: limegreen;
+  padding: 4px;
+}
+
 .todo-list-item-control > .edit-icon {
   color: royalblue;
+  padding: 4px;
 }
 
 .todo-list-item-control > .delete-icon {
   color: crimson;
+  padding: 4px;
   padding-right: 16px;
 }
 </style>

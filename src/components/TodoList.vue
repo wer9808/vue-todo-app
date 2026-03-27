@@ -2,7 +2,12 @@
 import { ref } from "vue";
 import TodoListItem from "./TodoListItem.vue";
 
-const emit = defineEmits(["toggle-todo-complete", "delete-todo", "edit-todo"]);
+const emit = defineEmits([
+  "toggle-todo-complete",
+  "delete-todo",
+  "edit-todo",
+  "select-todo",
+]);
 
 const { items } = defineProps(["items"]);
 
@@ -15,6 +20,7 @@ const castEvent = (eventName) => {
 const handleToggleTodoComplete = castEvent("toggle-todo-complete");
 const handleDeleteTodo = castEvent("delete-todo");
 const handleEditTodo = castEvent("edit-todo");
+const handleSelectTodo = castEvent("select-todo");
 </script>
 
 <template>
@@ -35,6 +41,7 @@ const handleEditTodo = castEvent("edit-todo");
         @toggle-todo-complete="handleToggleTodoComplete"
         @delete-todo="handleDeleteTodo"
         @edit-todo="handleEditTodo"
+        @select-todo="handleSelectTodo"
       />
     </div>
     <!-- 할 일 목록이 없을 때 -->
@@ -82,13 +89,13 @@ const handleEditTodo = castEvent("edit-todo");
   flex: 1 1 200px;
 }
 .todo-list-item-column:nth-child(3) {
-  flex: 0 0 100px;
+  flex: 0 0 80px;
 }
 .todo-list-item-column:nth-child(4) {
   flex: 0 0 200px;
 }
 .todo-list-item-column:nth-child(5) {
-  flex: 0 0 100px;
+  flex: 0 0 160px;
 }
 
 .todo-list-no-item {
