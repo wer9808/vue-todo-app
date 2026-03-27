@@ -23,12 +23,6 @@ watchEffect(() => {
   dateString.value = now.value.toLocaleDateString();
 });
 
-const clockString = computed(() => {
-  const datetime = new Date(currentTime.value);
-
-  return datetime.toLocaleTimeString();
-});
-
 const changeFilter = (id) => {
   emit("change-filter", id);
 };
