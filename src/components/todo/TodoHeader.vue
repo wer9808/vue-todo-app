@@ -1,4 +1,7 @@
 <script setup>
+import { DateUtil } from "@/libs/DateUtil";
+import { computed, onUnmounted, reactive, ref, watchEffect } from "vue";
+
 const emit = defineEmits(["change-filter"]);
 
 const { currentFilter, filters } = defineProps({
@@ -6,14 +9,44 @@ const { currentFilter, filters } = defineProps({
   filters: Array,
 });
 
+const now = ref(new Date());
+
+const timeString = ref("");
+const dateString = ref("");
+
+const clockInterval = setInterval(() => {
+  now.value = new Date();
+}, 1000);
+
+watchEffect(() => {
+  timeString.value = now.value.toLocaleTimeString();
+  dateString.value = now.value.toLocaleDateString();
+});
+
+const clockString = computed(() => {
+  const datetime = new Date(currentTime.value);
+
+  return datetime.toLocaleTimeString();
+});
+
 const changeFilter = (id) => {
   emit("change-filter", id);
 };
+
+onUnmounted(() => {
+  clearInterval(clockInterval);
+});
 </script>
 
 <template>
   <div class="todo-header">
-    <div class="title">TodoTodo</div>
+    <div class="title-container">
+      <div class="title">TodoTodo</div>
+      <div class="datetime-box">
+        <div class="date">{{ dateString }}</div>
+        <div class="clock">{{ timeString }}</div>
+      </div>
+    </div>
     <ul class="todo-filter-tab">
       <li
         v-for="filter in filters"
@@ -34,11 +67,35 @@ const changeFilter = (id) => {
   flex-direction: column;
 }
 
-.todo-header > .title {
+.title-container {
   margin: 16px;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.title {
   font-size: 3rem;
   font-weight: bold;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.datetime-box {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: end;
+}
+
+.datetime-box > .date {
+  font-size: 1.2rem;
+}
+
+.datetime-box > .clock {
+  font-size: 2rem;
 }
 
 .todo-filter-tab {
