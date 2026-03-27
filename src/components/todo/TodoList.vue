@@ -40,13 +40,6 @@ const handleSelectAll = () => {
 
 <template>
   <div class="todo-list">
-    <div class="todo-list-header todo-list-item">
-      <div class="todo-list-item-column">선택</div>
-      <div class="todo-list-item-column">할일</div>
-      <div class="todo-list-item-column">진행상태</div>
-      <div class="todo-list-item-column">종료일</div>
-      <div class="todo-list-item-column">수정 / 삭제</div>
-    </div>
     <div class="todo-list-control">
       <button @click="handleSelectAll">전체 선택</button>
       <button :disabled="!canMultiComplete" @click="handleMultiComplete">
@@ -59,6 +52,13 @@ const handleSelectAll = () => {
       >
         삭제
       </button>
+    </div>
+    <div class="todo-list-header todo-list-item">
+      <div class="todo-list-item-column">선택</div>
+      <div class="todo-list-item-column">할일</div>
+      <div class="todo-list-item-column">진행상태</div>
+      <div class="todo-list-item-column">종료일</div>
+      <div class="todo-list-item-column">수정 / 삭제</div>
     </div>
     <div class="todo-list-items" v-if="items.length > 0">
       <TodoListItem
@@ -80,25 +80,32 @@ const handleSelectAll = () => {
 
 <style scoped>
 .todo-list {
+  border: 1px solid lightgray;
+  border-radius: 8px;
+  padding: 8px;
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: start;
   align-items: stretch;
   gap: 4px;
+
+  box-shadow: 1px 1px 2px lightgray;
 }
 
 .todo-list-header {
   background-color: white;
   margin: 8px;
   border: 1px solid lightgray;
+  padding: 0 8px;
   border-radius: 8px;
-  padding: 8px;
+  flex: 0 0 32px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   gap: 8px;
   align-items: center;
+  box-shadow: 1px 1px 2px lightgray;
 }
 
 .todo-list-item > * {
@@ -122,11 +129,11 @@ const handleSelectAll = () => {
 }
 
 .todo-list-control {
-  flex: 0 0 auto;
+  flex: 0 0 32px;
   margin: 0 16px;
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: start;
   align-items: center;
   gap: 4px;
 }
@@ -150,7 +157,8 @@ const handleSelectAll = () => {
 }
 
 .todo-list-items {
-  flex: 1 1 auto;
+  overflow: scroll;
+  flex: 1 1 400px;
 }
 
 .todo-list-no-item {

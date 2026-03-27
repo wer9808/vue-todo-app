@@ -127,12 +127,12 @@ const handleCancelEdit = () => {
   justify-content: space-between;
   gap: 8px;
   align-items: center;
+  box-shadow: 1px 1px 1px lightgray;
 }
 
 .todo-list-item:hover {
   background-color: ghostwhite;
   padding: 13px 8px;
-  box-shadow: 1px 2px 3px gray;
 }
 
 .todo-list-item > * {
