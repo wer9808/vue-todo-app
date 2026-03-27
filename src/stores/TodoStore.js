@@ -1,7 +1,7 @@
 const storeKey = "todo_store_key";
 
 const store = JSON.parse(localStorage.getItem(storeKey)) ?? {};
-console.log(`store initialized ${JSON.stringify(store)}`);
+console.log(`store initialized`);
 
 function commit() {
   localStorage.setItem(storeKey, JSON.stringify(store));

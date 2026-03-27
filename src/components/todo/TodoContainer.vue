@@ -1,10 +1,9 @@
 <script setup>
 import { ref, computed, reactive } from "vue";
-import TodoHeader from "./components/todo/TodoHeader.vue";
-import TodoInput from "./components/todo/TodoInput.vue";
-import TodoList from "./components/todo/TodoList.vue";
-import { todoStore } from "./stores/TodoStore";
-import TodoContainer from "./components/todo/TodoContainer.vue";
+import TodoHeader from "@/components/todo/TodoHeader.vue";
+import TodoInput from "@/components/todo/TodoInput.vue";
+import TodoList from "@/components/todo/TodoList.vue";
+import { todoStore } from "@/stores/TodoStore";
 
 class TodoFilter {
   constructor(id, text) {
@@ -142,29 +141,36 @@ const handleDeleteSelectedTodos = () => {
 </script>
 
 <template>
-  <div class="container">
-    <TodoContainer />
+  <div class="todo-container">
+    <TodoHeader
+      :current-filter="currentFilter"
+      :filters="filters"
+      @change-filter="handleChangeFilter"
+    />
+    <TodoList
+      :items="displayTodos"
+      :selectedItems="selectedTodos"
+      @toggle-todo-complete="handleToggleTodoComplete"
+      @delete-todo="handleDeleteTodo"
+      @edit-todo="handleEditTodo"
+      @select-todo="handleSelectTodo"
+      @select-multi-todos="handleSelectMultiTodos"
+      @complete-selected-todos="handleCompleteSelectedTodos"
+      @delete-selected-todos="handleDeleteSelectedTodos"
+    />
+    <TodoInput @add-todo="handleAddTodo" />
   </div>
 </template>
 
 <style scoped>
-.container {
-  margin: 0 auto;
-  width: 100%;
-  height: 100%;
-  overflow: scroll;
-}
-
-@media screen and (min-width: 1280px) and (max-width: 1920px) {
-  .container {
-    width: 1080px;
-  }
-}
-
-@media screen and (max-width: 1279px) {
-  .container {
-    min-width: 800px;
-    max-width: 1080px;
-  }
+.todo-container {
+  padding: 8px;
+  height: 100vh;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 8px;
 }
 </style>
