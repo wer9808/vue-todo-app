@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch, useTemplateRef, watchEffect } from "vue";
 import TodoListItem from "./TodoListItem.vue";
 
 const emit = defineEmits([
@@ -20,6 +20,20 @@ const allSelected = () => {
   const anyUnselected = items.find((item) => item.selected === false);
   return !anyUnselected;
 };
+
+const progressSelect = useTemplateRef("todo-progress-select");
+
+watchEffect(() => {
+  if (progressSelect.value) {
+    if (canMultiChange.value === true) {
+      progressSelect.value.disabled = false;
+    } else {
+      progressSelect.value.disabled = true;
+      progressSelect.value.value = "";
+    }
+  }
+});
+
 const castEvent = (eventName) => {
   return (...args) => {
     emit(eventName, ...args);
@@ -47,7 +61,11 @@ const handleMultiProgressChange = ($e) => {
   <div class="todo-list">
     <div class="todo-list-control">
       <button @click="handleSelectAll">전체 선택</button>
-      <select :disabled="!canMultiChange" @change="handleMultiProgressChange">
+      <select
+        class="todo-progress-select"
+        ref="todo-progress-select"
+        @change="handleMultiProgressChange"
+      >
         <option value="" selected disabled hidden>진행상태</option>
         <option value="wait">대기</option>
         <option value="ongoing">진행중</option>
@@ -144,6 +162,21 @@ const handleMultiProgressChange = ($e) => {
   justify-content: start;
   align-items: center;
   gap: 4px;
+}
+
+.todo-list-control > select {
+  color: dodgerblue;
+  border: 1px solid lightslategray;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  padding: 4px;
+}
+
+.todo-list-control > select:disabled {
+  color: gray;
+  border: 1px solid gray;
+  background-color: white;
+  cursor: not-allowed;
 }
 
 .todo-list-control > button {
