@@ -10,12 +10,13 @@ const emit = defineEmits([
   "select-todo",
 ]);
 
-const { todo } = defineProps({
+const { todo, selected } = defineProps({
   todo: {
     id: Number,
     content: String,
     progress: String,
   },
+  selected: Boolean,
 });
 
 const modifying = ref(false);
@@ -80,7 +81,7 @@ const handleCancelEdit = () => {
       <input
         type="checkbox"
         :id="`chk-${todo.id}`"
-        :checked="todo.selected"
+        :checked="selected"
         @input="handleSelectTodo"
       />
       <label
@@ -187,7 +188,7 @@ const handleCancelEdit = () => {
 }
 
 .todo-list-item-state > .ongoing {
-  color: powderblue;
+  color: royalblue;
 }
 
 .todo-list-item-state > .completed {

@@ -1,9 +1,11 @@
 <script setup>
-import { ref, computed, reactive, watch } from "vue";
+import { ref, computed, reactive, watch, unref } from "vue";
 import TodoHeader from "@/components/todo/TodoHeader.vue";
 import TodoInput from "@/components/todo/TodoInput.vue";
 import TodoList from "@/components/todo/TodoList.vue";
 import { todoStore } from "@/stores/TodoStore";
+import TodoModel from "@/models/TodoModel";
+import { useSelectionList } from "@/hooks/useSelectionList";
 
 class TodoFilter {
   constructor(id, text) {
@@ -40,18 +42,9 @@ const currentFilter = computed(() => {
   return filters.find((filter) => filter.id === currentFilterId.value);
 });
 
-const convertStoreTodo = (storeTodo) => {
-  return {
-    id: storeTodo.id,
-    content: storeTodo.content,
-    progress: storeTodo.progress,
-    selected: false,
-    until: new Date(storeTodo.until),
-    createdAt: new Date(storeTodo.createdAt),
-  };
-};
-
-const storedTodos = todoStore.selectAll().map((val) => convertStoreTodo(val));
+const storedTodos = todoStore
+  .selectAll()
+  .map((storeTodo) => TodoModel.fromSerialized(storeTodo));
 const allTodos = reactive(storedTodos);
 
 const displayTodos = computed(() => {
@@ -59,14 +52,12 @@ const displayTodos = computed(() => {
   return todos;
 });
 
-const selectedTodos = computed(() => {
-  return allTodos.filter((todo) => todo.selected);
-});
+const selectionList = useSelectionList(TodoModel.equals);
 
 // 필터 변경 시 선택 아이템 초기화
 watch(currentFilter, (current, old) => {
   if (current != old) {
-    allTodos.forEach((todo) => (todo.selected = false));
+    selectionList.clear();
   }
 });
 
@@ -74,9 +65,7 @@ watch(currentFilter, (current, old) => {
 watch(displayTodos, (current, old) => {
   if (current.length != old.length) {
     old.forEach((oldTodo) => {
-      if (!current.find((todo) => todo.id === oldTodo.id)) {
-        oldTodo.selected = false;
-      }
+      selectionList.unselect(oldTodo);
     });
   }
 });
@@ -86,15 +75,7 @@ const findTodoById = (todoId) => {
 };
 
 const createTodo = ({ content, until }) => {
-  const datetime = new Date();
-  const id = datetime.getTime();
-  const newTodo = {
-    id: id,
-    content: content,
-    progress: "wait",
-    until: until,
-    createdAt: datetime,
-  };
+  const newTodo = TodoModel.create({ content, until });
   allTodos.push(newTodo);
   todoStore.upsert(newTodo);
 };
@@ -103,7 +84,7 @@ const updateTodo = (todo, { content, until, progress }) => {
   if (content) todo.content = content;
   if (until) todo.until = until;
   if (progress) todo.progress = progress;
-  todoStore.update(todo);
+  todoStore.update(unref(todo));
 };
 
 const deleteTodo = (todo) => {
@@ -148,19 +129,23 @@ const handleEditTodo = (todoId, update) => {
 const handleSelectTodo = (todoId) => {
   const todo = findTodoById(todoId);
   if (!todo) return;
-  todo.selected = !todo.selected;
+  selectionList.toggle(todo);
 };
 
 const handleSelectMultiTodos = (todoIds, selected) => {
   todoIds.forEach((todoId) => {
     const todo = findTodoById(todoId);
     if (!todo) return;
-    todo.selected = selected;
+    if (selectionList.find(todo)) {
+      selectionList.unselect(todo);
+    } else {
+      selectionList.select(todo);
+    }
   });
 };
 
 const handleChangeSelectedTodos = (name, value) => {
-  const targetTodos = selectedTodos.value.slice();
+  const targetTodos = selectionList.items.value.slice();
   targetTodos.forEach((todo) => {
     const update = {};
     update[name] = value;
@@ -169,10 +154,10 @@ const handleChangeSelectedTodos = (name, value) => {
 };
 
 const handleDeleteSelectedTodos = () => {
-  const targetTodos = selectedTodos.value.slice();
+  const targetTodos = selectionList.items.value.slice();
   targetTodos.forEach((todo) => {
     deleteTodo(todo);
-    todo.selected = false;
+    selectionList.unselect(todo);
   });
 };
 </script>
@@ -186,7 +171,7 @@ const handleDeleteSelectedTodos = () => {
     />
     <TodoList
       :items="displayTodos"
-      :selectedItems="selectedTodos"
+      :selectedItems="selectionList.items"
       @toggle-todo-progress="handleToggleTodoProgress"
       @delete-todo="handleDeleteTodo"
       @edit-todo="handleEditTodo"

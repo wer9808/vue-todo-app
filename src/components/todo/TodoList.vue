@@ -14,11 +14,19 @@ const emit = defineEmits([
 
 const { items, selectedItems } = defineProps(["items", "selectedItems"]);
 
-const canMultiChange = computed(() => selectedItems.length > 0);
-const canMultiDelete = computed(() => selectedItems.length > 0);
+const canMultiChange = computed(() => selectedItems.value.length > 0);
+const canMultiDelete = computed(() => selectedItems.value.length > 0);
 const allSelected = () => {
   const anyUnselected = items.find((item) => item.selected === false);
   return !anyUnselected;
+};
+
+const isSelected = (item) => {
+  return (
+    selectedItems.value.findIndex(
+      (selectedItem) => item.id === selectedItem.id,
+    ) >= 0
+  );
 };
 
 const progressSelect = useTemplateRef("todo-progress-select");
@@ -52,7 +60,6 @@ const handleSelectAll = () => {
 
 const handleMultiProgressChange = ($e) => {
   const value = $e.target.value;
-  console.log(value);
   emit("change-selected-todos", "progress", value);
 };
 </script>
@@ -91,6 +98,7 @@ const handleMultiProgressChange = ($e) => {
         v-for="(item, idx) in items"
         :key="item.id"
         :todo="item"
+        :selected="isSelected(item)"
         @toggle-todo-progress="handleToggleTodoProgress"
         @delete-todo="handleDeleteTodo"
         @edit-todo="handleEditTodo"

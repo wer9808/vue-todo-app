@@ -17,7 +17,7 @@ export const todoStore = {
       console.log(`이미 저장된 객체입니다. [id=${todo.id}]`);
       return;
     }
-    store[todo.id] = this.toStoreData(todo);
+    store[todo.id] = todo.serialize();
     commit();
   },
   delete(todo) {
@@ -37,7 +37,7 @@ export const todoStore = {
       console.log(`존재하지 않는 객체입니다. [id=${todo.id}]`);
       return;
     }
-    store[todo.id] = this.toStoreData(todo);
+    store[todo.id] = todo.serialize();
     commit();
   },
   upsert(todo) {
@@ -54,15 +54,5 @@ export const todoStore = {
       arr.push({ ...val });
     });
     return arr;
-  },
-  // store에 저장하기 위한 형태로 변환
-  toStoreData(todo) {
-    return {
-      id: todo.id,
-      content: todo.content,
-      progress: todo.progress,
-      until: todo.until.getTime(),
-      createdAt: todo.createdAt.getTime(),
-    };
   },
 };
