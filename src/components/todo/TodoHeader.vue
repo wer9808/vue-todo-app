@@ -1,6 +1,5 @@
 <script setup>
-import { DateUtil } from "@/libs/DateUtil";
-import { computed, onUnmounted, reactive, ref, watchEffect } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 
 const emit = defineEmits(["change-filter"]);
 
@@ -11,22 +10,24 @@ const { currentFilter, filters } = defineProps({
 
 const now = ref(new Date());
 
-const timeString = ref("");
-const dateString = ref("");
-
-const clockInterval = setInterval(() => {
-  now.value = new Date();
-}, 1000);
-
-watchEffect(() => {
-  timeString.value = now.value.toLocaleTimeString();
-  dateString.value = now.value.toLocaleDateString();
-});
+const timeString = computed(() => now.value.toLocaleTimeString());
+const dateString = computed(() => now.value.toLocaleDateString());
 
 const changeFilter = (id) => {
   emit("change-filter", id);
 };
 
+// 시간 갱신 타이머 핸들
+let clockInterval;
+
+// 마운트 시 타이머 시작
+onMounted(() => {
+  clockInterval = setInterval(() => {
+    now.value = new Date();
+  }, 1000);
+});
+
+// 언마운트 시 타이머 해제
 onUnmounted(() => {
   clearInterval(clockInterval);
 });
