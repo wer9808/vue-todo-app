@@ -69,7 +69,7 @@ const handleMultiProgressChange = ($e) => {
         <option value="" selected disabled hidden>진행상태</option>
         <option value="wait">대기</option>
         <option value="ongoing">진행중</option>
-        <option value="complete">완료</option>
+        <option value="completed">완료</option>
       </select>
       <button
         class="multi-delete-btn"

@@ -14,7 +14,7 @@ const { todo } = defineProps({
   todo: {
     id: Number,
     content: String,
-    completed: Boolean,
+    progress: String,
   },
 });
 
@@ -38,7 +38,7 @@ const progressIcon = computed(() => {
       return "snooze";
     case "ongoing":
       return "progress_activity";
-    case "complete":
+    case "completed":
       return "check_circle";
     default:
       return "snooze";
@@ -59,7 +59,7 @@ const handleSelectTodo = () => {
 
 const handleStartEdit = () => {
   if (!modifying.value) {
-    if (todo.completed) return;
+    if (todo.progress === "completed") return;
     modifying.value = true;
   }
 };
@@ -103,7 +103,7 @@ const handleCancelEdit = () => {
     }}</span>
     <div class="todo-list-item-control todo-list-item-column">
       <span
-        class="material-symbols-outlined complete-icon"
+        class="material-symbols-outlined toggle-progress-icon"
         @click="toggleTodoProgress"
         >check</span
       >
@@ -190,7 +190,7 @@ const handleCancelEdit = () => {
   color: powderblue;
 }
 
-.todo-list-item-state > .complete {
+.todo-list-item-state > .completed {
   color: limegreen;
 }
 
@@ -205,7 +205,7 @@ const handleCancelEdit = () => {
   cursor: pointer;
 }
 
-.todo-list-item-control > .complete-icon {
+.todo-list-item-control > .toggle-progress-icon {
   color: limegreen;
   padding: 4px;
 }
