@@ -32,9 +32,9 @@ class TodoLabelFilter extends TodoFilter {
 const allFilter = new TodoFilter("all", "전체");
 const waitFilter = new TodoLabelFilter("wait", "progress", "대기");
 const ongoingFilter = new TodoLabelFilter("ongoing", "progress", "진행중");
-const completeFilter = new TodoLabelFilter("complete", "progress", "완료");
+const completedFilter = new TodoLabelFilter("completed", "progress", "완료");
 
-const filters = [allFilter, waitFilter, ongoingFilter, completeFilter];
+const filters = [allFilter, waitFilter, ongoingFilter, completedFilter];
 const currentFilterId = ref("all");
 const currentFilter = computed(() => {
   return filters.find((filter) => filter.id === currentFilterId.value);
@@ -126,8 +126,8 @@ const handleToggleTodoProgress = (todoId) => {
   if (todo.progress === "wait") {
     todo.progress = "ongoing";
   } else if (todo.progress === "ongoing") {
-    todo.progress = "complete";
-  } else if (todo.progress === "complete") {
+    todo.progress = "completed";
+  } else if (todo.progress === "completed") {
     todo.progress = "wait";
   }
   updateTodo(todo, { progress: todo.progress });
