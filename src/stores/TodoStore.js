@@ -61,6 +61,7 @@ export const todoStore = {
       id: todo.id,
       content: todo.content,
       completed: todo.completed,
+      progress: todo.progress,
       until: todo.until.getTime(),
       createdAt: todo.createdAt.getTime(),
     };

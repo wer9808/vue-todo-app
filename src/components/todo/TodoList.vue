@@ -3,18 +3,20 @@ import { ref, computed } from "vue";
 import TodoListItem from "./TodoListItem.vue";
 
 const emit = defineEmits([
-  "toggle-todo-complete",
+  "toggle-todo-progress",
   "delete-todo",
   "edit-todo",
   "select-todo",
   "select-multi-todos",
   "complete-selected-todos",
+  "change-selected-todos",
   "delete-selected-todos",
 ]);
 
 const { items, selectedItems } = defineProps(["items", "selectedItems"]);
 
 const canMultiComplete = computed(() => selectedItems.length > 0);
+const canMultiChange = computed(() => selectedItems.length > 0);
 const canMultiDelete = computed(() => selectedItems.length > 0);
 const allSelected = () => {
   const anyUnselected = items.find((item) => item.selected === false);
@@ -26,7 +28,7 @@ const castEvent = (eventName) => {
   };
 };
 
-const handleToggleTodoComplete = castEvent("toggle-todo-complete");
+const handleToggleTodoProgress = castEvent("toggle-todo-progress");
 const handleDeleteTodo = castEvent("delete-todo");
 const handleEditTodo = castEvent("edit-todo");
 const handleSelectTodo = castEvent("select-todo");
@@ -35,6 +37,12 @@ const handleMultiDelete = castEvent("delete-selected-todos");
 const handleSelectAll = () => {
   const todoIds = items.map((todo) => todo.id);
   emit("select-multi-todos", todoIds, !allSelected());
+};
+
+const handleMultiProgressChange = ($e) => {
+  const value = $e.target.value;
+  console.log(value);
+  emit("change-selected-todos", "progress", value);
 };
 </script>
 
@@ -45,6 +53,12 @@ const handleSelectAll = () => {
       <button :disabled="!canMultiComplete" @click="handleMultiComplete">
         완료
       </button>
+      <select :disabled="!canMultiChange" @change="handleMultiProgressChange">
+        <option value="" selected disabled hidden>진행상태</option>
+        <option value="wait">대기</option>
+        <option value="ongoing">진행중</option>
+        <option value="complete">완료</option>
+      </select>
       <button
         class="multi-delete-btn"
         :disabled="!canMultiDelete"
@@ -65,7 +79,7 @@ const handleSelectAll = () => {
         v-for="(item, idx) in items"
         :key="item.id"
         :todo="item"
-        @toggle-todo-complete="handleToggleTodoComplete"
+        @toggle-todo-progress="handleToggleTodoProgress"
         @delete-todo="handleDeleteTodo"
         @edit-todo="handleEditTodo"
         @select-todo="handleSelectTodo"

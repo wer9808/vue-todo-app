@@ -9,21 +9,43 @@ class TodoFilter {
   constructor(id, text) {
     this.id = id;
     this.text = text;
+    this.filterType = "none";
+  }
+
+  filter(itemArr) {
+    return [...itemArr];
+  }
+}
+
+class TodoLabelFilter extends TodoFilter {
+  constructor(id, label, text) {
+    super(id, text);
+    this.label = label;
+    this.filterType = "label";
+  }
+
+  filter(itemArr) {
+    return [...itemArr.filter((item) => item[this.label] === this.id)];
   }
 }
 
 const allFilter = new TodoFilter("all", "전체");
-const completedFilter = new TodoFilter("completed", "완료");
-const incompletedFilter = new TodoFilter("incompleted", "미완료");
+const waitFilter = new TodoLabelFilter("wait", "progress", "대기");
+const ongoingFilter = new TodoLabelFilter("ongoing", "progress", "진행중");
+const completeFilter = new TodoLabelFilter("complete", "progress", "완료");
 
-const filters = [allFilter, incompletedFilter, completedFilter];
-const currentFilter = ref("all");
+const filters = [allFilter, waitFilter, ongoingFilter, completeFilter];
+const currentFilterId = ref("all");
+const currentFilter = computed(() => {
+  return filters.find((filter) => filter.id === currentFilterId.value);
+});
 
 const convertStoreTodo = (storeTodo) => {
   return {
     id: storeTodo.id,
     content: storeTodo.content,
     completed: storeTodo.completed,
+    progress: storeTodo.progress,
     selected: false,
     until: new Date(storeTodo.until),
     createdAt: new Date(storeTodo.createdAt),
@@ -33,17 +55,8 @@ const storedTodos = todoStore.selectAll().map((val) => convertStoreTodo(val));
 const allTodos = reactive(storedTodos);
 
 const displayTodos = computed(() => {
-  if (currentFilter.value === "completed") {
-    return allTodos.filter((todo) => {
-      return todo.completed;
-    });
-  }
-  if (currentFilter.value === "incompleted") {
-    return allTodos.filter((todo) => {
-      return !todo.completed;
-    });
-  }
-  return allTodos;
+  const todos = currentFilter.value.filter(allTodos);
+  return todos;
 });
 
 const selectedTodos = computed(() => {
@@ -61,6 +74,7 @@ const createTodo = ({ content, until }) => {
     id: id,
     content: content,
     completed: false,
+    progress: "wait",
     until: until,
     createdAt: datetime,
   };
@@ -68,10 +82,11 @@ const createTodo = ({ content, until }) => {
   todoStore.upsert(newTodo);
 };
 
-const updateTodo = (todo, { content, until, completed }) => {
+const updateTodo = (todo, { content, until, completed, progress }) => {
   if (content) todo.content = content;
   if (until) todo.until = until;
   if (completed) todo.completed = completed;
+  if (progress) todo.progress = progress;
   todoStore.update(todo);
 };
 
@@ -82,18 +97,24 @@ const deleteTodo = (todo) => {
 };
 
 const handleChangeFilter = (filterId) => {
-  currentFilter.value = filterId;
+  currentFilterId.value = filterId;
 };
 
 const handleAddTodo = (todo) => {
   createTodo(todo);
 };
 
-const handleToggleTodoComplete = (todoId) => {
+const handleToggleTodoProgress = (todoId) => {
   const todo = findTodoById(todoId);
   if (!todo) return;
-  todo.completed = !todo.completed;
-  updateTodo(todo, { completed: todo.completed });
+  if (todo.progress === "wait") {
+    todo.progress = "ongoing";
+  } else if (todo.progress === "ongoing") {
+    todo.progress = "complete";
+  } else if (todo.progress === "complete") {
+    todo.progress = "wait";
+  }
+  updateTodo(todo, { progress: todo.progress });
 };
 
 const handleDeleteTodo = (todoId) => {
@@ -125,9 +146,17 @@ const handleSelectMultiTodos = (todoIds, selected) => {
 const handleCompleteSelectedTodos = () => {
   const targetTodos = selectedTodos.value.slice();
   targetTodos.forEach((todo) => {
-    todo.completed = true;
     todo.selected = false;
     updateTodo(todo, { completed: todo.completed });
+  });
+};
+
+const handleChangeSelectedTodos = (name, value) => {
+  const targetTodos = selectedTodos.value.slice();
+  targetTodos.forEach((todo) => {
+    const update = {};
+    update[name] = value;
+    updateTodo(todo, update);
   });
 };
 
@@ -143,19 +172,20 @@ const handleDeleteSelectedTodos = () => {
 <template>
   <div class="todo-container">
     <TodoHeader
-      :current-filter="currentFilter"
+      :current-filter="currentFilterId"
       :filters="filters"
       @change-filter="handleChangeFilter"
     />
     <TodoList
       :items="displayTodos"
       :selectedItems="selectedTodos"
-      @toggle-todo-complete="handleToggleTodoComplete"
+      @toggle-todo-progress="handleToggleTodoProgress"
       @delete-todo="handleDeleteTodo"
       @edit-todo="handleEditTodo"
       @select-todo="handleSelectTodo"
       @select-multi-todos="handleSelectMultiTodos"
       @complete-selected-todos="handleCompleteSelectedTodos"
+      @change-selected-todos="handleChangeSelectedTodos"
       @delete-selected-todos="handleDeleteSelectedTodos"
     />
     <TodoInput @add-todo="handleAddTodo" />

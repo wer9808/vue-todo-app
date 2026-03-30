@@ -4,7 +4,7 @@ import { computed, ref } from "vue";
 import TodoEditModal from "./TodoEditModal.vue";
 
 const emit = defineEmits([
-  "toggle-todo-complete",
+  "toggle-todo-progress",
   "delete-todo",
   "edit-todo",
   "select-todo",
@@ -32,8 +32,21 @@ const untilDateString = computed(() => {
   return `${year}년 ${month}월 ${day}일 ${hour}:${minute} ${ampm}`;
 });
 
-const toggleTodoComplete = () => {
-  emit("toggle-todo-complete", todo.id);
+const progressIcon = computed(() => {
+  switch (todo.progress) {
+    case "wait":
+      return "snooze";
+    case "ongoing":
+      return "progress_activity";
+    case "complete":
+      return "check_circle";
+    default:
+      return "snooze";
+  }
+});
+
+const toggleTodoProgress = () => {
+  emit("toggle-todo-progress", todo.id);
 };
 
 const deleteTodo = () => {
@@ -81,11 +94,8 @@ const handleCancelEdit = () => {
       </div>
     </div>
     <div class="todo-list-item-state todo-list-item-column">
-      <span
-        class="material-symbols-rounded"
-        :class="todo.completed ? `completed` : `incompleted`"
-      >
-        {{ todo.completed ? "check_circle" : "hourglass_bottom" }}
+      <span class="material-symbols-rounded" :class="todo.progress">
+        {{ progressIcon }}
       </span>
     </div>
     <span class="todo-list-item-until todo-list-item-column">{{
@@ -94,7 +104,7 @@ const handleCancelEdit = () => {
     <div class="todo-list-item-control todo-list-item-column">
       <span
         class="material-symbols-outlined complete-icon"
-        @click="toggleTodoComplete"
+        @click="toggleTodoProgress"
         >check</span
       >
       <span class="material-symbols-outlined edit-icon" @click="handleStartEdit"
@@ -172,12 +182,16 @@ const handleCancelEdit = () => {
   align-items: center;
 }
 
-.todo-list-item-state > .completed {
-  color: limegreen;
+.todo-list-item-state > .wait {
+  color: sandybrown;
 }
 
-.todo-list-item-state > .incompleted {
-  color: sandybrown;
+.todo-list-item-state > .ongoing {
+  color: powderblue;
+}
+
+.todo-list-item-state > .complete {
+  color: limegreen;
 }
 
 .todo-list-item-control {
