@@ -8,14 +8,12 @@ const emit = defineEmits([
   "edit-todo",
   "select-todo",
   "select-multi-todos",
-  "complete-selected-todos",
   "change-selected-todos",
   "delete-selected-todos",
 ]);
 
 const { items, selectedItems } = defineProps(["items", "selectedItems"]);
 
-const canMultiComplete = computed(() => selectedItems.length > 0);
 const canMultiChange = computed(() => selectedItems.length > 0);
 const canMultiDelete = computed(() => selectedItems.length > 0);
 const allSelected = () => {
@@ -32,7 +30,6 @@ const handleToggleTodoProgress = castEvent("toggle-todo-progress");
 const handleDeleteTodo = castEvent("delete-todo");
 const handleEditTodo = castEvent("edit-todo");
 const handleSelectTodo = castEvent("select-todo");
-const handleMultiComplete = castEvent("complete-selected-todos");
 const handleMultiDelete = castEvent("delete-selected-todos");
 const handleSelectAll = () => {
   const todoIds = items.map((todo) => todo.id);
@@ -50,9 +47,6 @@ const handleMultiProgressChange = ($e) => {
   <div class="todo-list">
     <div class="todo-list-control">
       <button @click="handleSelectAll">전체 선택</button>
-      <button :disabled="!canMultiComplete" @click="handleMultiComplete">
-        완료
-      </button>
       <select :disabled="!canMultiChange" @change="handleMultiProgressChange">
         <option value="" selected disabled hidden>진행상태</option>
         <option value="wait">대기</option>

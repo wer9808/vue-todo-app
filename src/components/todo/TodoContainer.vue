@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, watch } from "vue";
 import TodoHeader from "@/components/todo/TodoHeader.vue";
 import TodoInput from "@/components/todo/TodoInput.vue";
 import TodoList from "@/components/todo/TodoList.vue";
@@ -44,13 +44,13 @@ const convertStoreTodo = (storeTodo) => {
   return {
     id: storeTodo.id,
     content: storeTodo.content,
-    completed: storeTodo.completed,
     progress: storeTodo.progress,
     selected: false,
     until: new Date(storeTodo.until),
     createdAt: new Date(storeTodo.createdAt),
   };
 };
+
 const storedTodos = todoStore.selectAll().map((val) => convertStoreTodo(val));
 const allTodos = reactive(storedTodos);
 
@@ -63,6 +63,24 @@ const selectedTodos = computed(() => {
   return allTodos.filter((todo) => todo.selected);
 });
 
+// 필터 변경 시 선택 아이템 초기화
+watch(currentFilter, (current, old) => {
+  if (current != old) {
+    allTodos.forEach((todo) => (todo.selected = false));
+  }
+});
+
+// 아이템 변화 시 표시 목록에서 사라진 선택 아이템 초기화
+watch(displayTodos, (current, old) => {
+  if (current.length != old.length) {
+    old.forEach((oldTodo) => {
+      if (!current.find((todo) => todo.id === oldTodo.id)) {
+        oldTodo.selected = false;
+      }
+    });
+  }
+});
+
 const findTodoById = (todoId) => {
   return allTodos.find((todo) => todo.id === todoId);
 };
@@ -73,7 +91,6 @@ const createTodo = ({ content, until }) => {
   const newTodo = {
     id: id,
     content: content,
-    completed: false,
     progress: "wait",
     until: until,
     createdAt: datetime,
@@ -82,10 +99,9 @@ const createTodo = ({ content, until }) => {
   todoStore.upsert(newTodo);
 };
 
-const updateTodo = (todo, { content, until, completed, progress }) => {
+const updateTodo = (todo, { content, until, progress }) => {
   if (content) todo.content = content;
   if (until) todo.until = until;
-  if (completed) todo.completed = completed;
   if (progress) todo.progress = progress;
   todoStore.update(todo);
 };
@@ -143,14 +159,6 @@ const handleSelectMultiTodos = (todoIds, selected) => {
   });
 };
 
-const handleCompleteSelectedTodos = () => {
-  const targetTodos = selectedTodos.value.slice();
-  targetTodos.forEach((todo) => {
-    todo.selected = false;
-    updateTodo(todo, { completed: todo.completed });
-  });
-};
-
 const handleChangeSelectedTodos = (name, value) => {
   const targetTodos = selectedTodos.value.slice();
   targetTodos.forEach((todo) => {
@@ -184,7 +192,6 @@ const handleDeleteSelectedTodos = () => {
       @edit-todo="handleEditTodo"
       @select-todo="handleSelectTodo"
       @select-multi-todos="handleSelectMultiTodos"
-      @complete-selected-todos="handleCompleteSelectedTodos"
       @change-selected-todos="handleChangeSelectedTodos"
       @delete-selected-todos="handleDeleteSelectedTodos"
     />
