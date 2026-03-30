@@ -1,40 +1,59 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch, useTemplateRef, watchEffect } from "vue";
 import TodoListItem from "./TodoListItem.vue";
 
 const emit = defineEmits([
-  "toggle-todo-complete",
+  "toggle-todo-progress",
   "delete-todo",
   "edit-todo",
   "select-todo",
   "select-multi-todos",
-  "complete-selected-todos",
+  "change-selected-todos",
   "delete-selected-todos",
 ]);
 
 const { items, selectedItems } = defineProps(["items", "selectedItems"]);
 
-const canMultiComplete = computed(() => selectedItems.length > 0);
+const canMultiChange = computed(() => selectedItems.length > 0);
 const canMultiDelete = computed(() => selectedItems.length > 0);
 const allSelected = () => {
   const anyUnselected = items.find((item) => item.selected === false);
   return !anyUnselected;
 };
+
+const progressSelect = useTemplateRef("todo-progress-select");
+
+watchEffect(() => {
+  if (progressSelect.value) {
+    if (canMultiChange.value === true) {
+      progressSelect.value.disabled = false;
+    } else {
+      progressSelect.value.disabled = true;
+      progressSelect.value.value = "";
+    }
+  }
+});
+
 const castEvent = (eventName) => {
   return (...args) => {
     emit(eventName, ...args);
   };
 };
 
-const handleToggleTodoComplete = castEvent("toggle-todo-complete");
+const handleToggleTodoProgress = castEvent("toggle-todo-progress");
 const handleDeleteTodo = castEvent("delete-todo");
 const handleEditTodo = castEvent("edit-todo");
 const handleSelectTodo = castEvent("select-todo");
-const handleMultiComplete = castEvent("complete-selected-todos");
 const handleMultiDelete = castEvent("delete-selected-todos");
 const handleSelectAll = () => {
   const todoIds = items.map((todo) => todo.id);
   emit("select-multi-todos", todoIds, !allSelected());
+};
+
+const handleMultiProgressChange = ($e) => {
+  const value = $e.target.value;
+  console.log(value);
+  emit("change-selected-todos", "progress", value);
 };
 </script>
 
@@ -42,9 +61,16 @@ const handleSelectAll = () => {
   <div class="todo-list">
     <div class="todo-list-control">
       <button @click="handleSelectAll">전체 선택</button>
-      <button :disabled="!canMultiComplete" @click="handleMultiComplete">
-        완료
-      </button>
+      <select
+        class="todo-progress-select"
+        ref="todo-progress-select"
+        @change="handleMultiProgressChange"
+      >
+        <option value="" selected disabled hidden>진행상태</option>
+        <option value="wait">대기</option>
+        <option value="ongoing">진행중</option>
+        <option value="complete">완료</option>
+      </select>
       <button
         class="multi-delete-btn"
         :disabled="!canMultiDelete"
@@ -65,7 +91,7 @@ const handleSelectAll = () => {
         v-for="(item, idx) in items"
         :key="item.id"
         :todo="item"
-        @toggle-todo-complete="handleToggleTodoComplete"
+        @toggle-todo-progress="handleToggleTodoProgress"
         @delete-todo="handleDeleteTodo"
         @edit-todo="handleEditTodo"
         @select-todo="handleSelectTodo"
@@ -136,6 +162,21 @@ const handleSelectAll = () => {
   justify-content: start;
   align-items: center;
   gap: 4px;
+}
+
+.todo-list-control > select {
+  color: dodgerblue;
+  border: 1px solid lightslategray;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  padding: 4px;
+}
+
+.todo-list-control > select:disabled {
+  color: gray;
+  border: 1px solid gray;
+  background-color: white;
+  cursor: not-allowed;
 }
 
 .todo-list-control > button {
