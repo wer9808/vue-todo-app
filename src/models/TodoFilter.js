@@ -22,11 +22,11 @@ export class TodoAttributeFilter extends TodoFilter {
   }
 }
 
-export class TodoSearchTextFilter extends TodoFilter {
+export class TodoTextSearchFilter extends TodoFilter {
   constructor(id, attr, text) {
     super(id, text);
     this.attr = attr;
-    this.filterType = "attribute";
+    this.filterType = "textsearch";
     this._search = "";
   }
 

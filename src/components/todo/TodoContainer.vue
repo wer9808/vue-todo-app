@@ -7,11 +7,11 @@ import { todoStorage } from "@/storages/TodoStorage";
 import TodoModel from "@/models/TodoModel";
 import { useSelectionList } from "@/hooks/useSelectionList";
 import { useMainFilters } from "@/stores/TodoFilterStore";
-import { TodoSearchTextFilter } from "@/models/TodoFilter";
+import { TodoTextSearchFilter } from "@/models/TodoFilter";
 
 const [curFilter, _] = useMainFilters();
 
-const titleSearchFilter = ref(new TodoSearchTextFilter("title", "content", ""));
+const titleSearchFilter = ref(new TodoTextSearchFilter("title", "content", ""));
 const searchFilters = reactive([titleSearchFilter]);
 
 const savedTodos = todoStorage
