@@ -52,6 +52,9 @@ onUnmounted(() => {
         {{ filter.text }}
       </li>
     </ul>
+    <div class="todo-search-container">
+      <input type="text" placeholder="할일 검색" />
+    </div>
   </div>
 </template>
 
@@ -100,7 +103,7 @@ onUnmounted(() => {
   justify-content: stretch;
   align-items: center;
   gap: 8px;
-  margin: 16px 8px;
+  margin: 16px 0;
   padding: 0;
 }
 
@@ -123,5 +126,28 @@ onUnmounted(() => {
 .todo-filter-tab > li.active {
   background-color: dodgerblue;
   color: white;
+}
+
+.todo-search-container {
+  flex: 0 0 40px;
+  margin: 0 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+}
+
+.todo-search-container > input {
+  flex: 0 0 100px;
+  color: black;
+  border: 1px solid lightgray;
+  border-radius: 32px;
+  padding: 8px 16px;
+  outline: none;
+  text-align: end;
+}
+
+.todo-search-container > input:focus {
+  border: 2px solid dodgerblue;
 }
 </style>
