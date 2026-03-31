@@ -1,21 +1,17 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { TodoFilter, TodoAttributeFilter } from "@/models/TodoFilter";
+import { useFilterMap } from "@/hooks/useTodoFilter";
+import { useMainFilters } from "@/stores/TodoFilterStore";
 
 const emit = defineEmits(["change-filter", "search-todos"]);
 
-const { currentFilter, filters } = defineProps({
-  currentFilter: String,
-  filters: Array,
-});
+const [curFilter, setFilter, mainFilters] = useMainFilters();
 
 const now = ref(new Date());
 
 const timeString = computed(() => now.value.toLocaleTimeString());
 const dateString = computed(() => now.value.toLocaleDateString());
-
-const changeFilter = (id) => {
-  emit("change-filter", id);
-};
 
 const handleSearchInput = ($e) => {
   const searchText = $e.target.value;
@@ -49,10 +45,10 @@ onUnmounted(() => {
     </div>
     <ul class="todo-filter-tab">
       <li
-        v-for="filter in filters"
+        v-for="filter in mainFilters"
         :key="filter.id"
-        :class="filter.id === currentFilter ? `active` : ``"
-        @click="changeFilter(filter.id)"
+        :class="filter.id === curFilter.id ? `active` : ``"
+        @click="setFilter(filter.id)"
       >
         {{ filter.text }}
       </li>

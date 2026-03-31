@@ -3,39 +3,26 @@ import { ref, computed, reactive, watch, unref } from "vue";
 import TodoHeader from "@/components/todo/TodoHeader.vue";
 import TodoInput from "@/components/todo/TodoInput.vue";
 import TodoList from "@/components/todo/TodoList.vue";
-import { todoStore } from "@/stores/TodoStore";
+import { todoStorage } from "@/storages/TodoStorage";
 import TodoModel from "@/models/TodoModel";
-import { TodoFilter, TodoAttributeFilter } from "@/models/TodoFilter";
 import { useSelectionList } from "@/hooks/useSelectionList";
+import { useMainFilters } from "@/stores/TodoFilterStore";
+import { TodoSearchTextFilter } from "@/models/TodoFilter";
 
-const allFilter = new TodoFilter("all", "전체");
-const waitFilter = new TodoAttributeFilter("wait", "progress", "대기");
-const ongoingFilter = new TodoAttributeFilter("ongoing", "progress", "진행중");
-const completedFilter = new TodoAttributeFilter(
-  "completed",
-  "progress",
-  "완료",
-);
-const filters = [allFilter, waitFilter, ongoingFilter, completedFilter];
+const [curFilter, _] = useMainFilters();
 
-const currentFilterId = ref("all");
-const currentFilter = computed(() => {
-  return filters.find((filter) => filter.id === currentFilterId.value);
-});
+const titleSearchFilter = ref(new TodoSearchTextFilter("title", "content", ""));
+const searchFilters = reactive([titleSearchFilter]);
 
-const titleSearchText = ref("");
-
-const storedTodos = todoStore
+const savedTodos = todoStorage
   .selectAll()
   .map((storeTodo) => TodoModel.fromSerialized(storeTodo));
-const allTodos = reactive(storedTodos);
+const allTodos = reactive(savedTodos);
 
 const displayTodos = computed(() => {
-  let todos = currentFilter.value.filter(allTodos);
-  if (titleSearchText.value) {
-    todos = todos.filter((todo) => {
-      return todo.content.includes(titleSearchText.value);
-    });
+  let todos = curFilter.value.filter(allTodos);
+  for (let filter of searchFilters) {
+    todos = filter.value.filter(todos);
   }
   return todos;
 });
@@ -43,7 +30,7 @@ const displayTodos = computed(() => {
 const selectionList = useSelectionList(TodoModel.equals);
 
 // 필터 변경 시 선택 아이템 초기화
-watch(currentFilter, (current, old) => {
+watch(curFilter, (current, old) => {
   if (current != old) {
     selectionList.clear();
   }
@@ -65,24 +52,24 @@ const findTodoById = (todoId) => {
 const createTodo = ({ content, until }) => {
   const newTodo = TodoModel.create({ content, until });
   allTodos.push(newTodo);
-  todoStore.upsert(newTodo);
+  todoStorage.upsert(newTodo);
 };
 
 const updateTodo = (todo, { content, until, progress }) => {
   if (content) todo.content = content;
   if (until) todo.until = until;
   if (progress) todo.progress = progress;
-  todoStore.update(unref(todo));
+  todoStorage.update(unref(todo));
 };
 
 const deleteTodo = (todo) => {
   const idx = allTodos.indexOf(todo);
   allTodos.splice(idx, 1);
-  todoStore.delete(todo);
+  todoStorage.delete(todo);
 };
 
-const handleChangeFilter = (filterId) => {
-  currentFilterId.value = filterId;
+const handleChangeFilter = (filter) => {
+  curFilter.value = filter;
 };
 
 const handleAddTodo = (todo) => {
@@ -151,7 +138,7 @@ const handleDeleteSelectedTodos = () => {
 
 const handleSearchTodos = (searchAttr, value) => {
   if (searchAttr === "title") {
-    titleSearchText.value = value;
+    titleSearchFilter.value.search = value;
   }
 };
 </script>
@@ -159,8 +146,6 @@ const handleSearchTodos = (searchAttr, value) => {
 <template>
   <div class="todo-container">
     <TodoHeader
-      :current-filter="currentFilterId"
-      :filters="filters"
       @change-filter="handleChangeFilter"
       @search-todos="handleSearchTodos"
     />
