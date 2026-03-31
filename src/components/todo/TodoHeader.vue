@@ -1,20 +1,21 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { TodoFilter, TodoAttributeFilter } from "@/models/TodoFilter";
+import { useFilterMap } from "@/hooks/useTodoFilter";
+import { useMainFilters } from "@/stores/TodoFilterStore";
 
-const emit = defineEmits(["change-filter"]);
+const emit = defineEmits(["change-filter", "search-todos"]);
 
-const { currentFilter, filters } = defineProps({
-  currentFilter: String,
-  filters: Array,
-});
+const [curFilter, setFilter, mainFilters] = useMainFilters();
 
 const now = ref(new Date());
 
 const timeString = computed(() => now.value.toLocaleTimeString());
 const dateString = computed(() => now.value.toLocaleDateString());
 
-const changeFilter = (id) => {
-  emit("change-filter", id);
+const handleSearchInput = ($e) => {
+  const searchText = $e.target.value;
+  emit("search-todos", "title", searchText);
 };
 
 // 시간 갱신 타이머 핸들
@@ -44,14 +45,17 @@ onUnmounted(() => {
     </div>
     <ul class="todo-filter-tab">
       <li
-        v-for="filter in filters"
+        v-for="filter in mainFilters"
         :key="filter.id"
-        :class="filter.id === currentFilter ? `active` : ``"
-        @click="changeFilter(filter.id)"
+        :class="filter.id === curFilter.id ? `active` : ``"
+        @click="setFilter(filter.id)"
       >
         {{ filter.text }}
       </li>
     </ul>
+    <div class="todo-search-container">
+      <input type="text" placeholder="할일 검색" @input="handleSearchInput" />
+    </div>
   </div>
 </template>
 
@@ -100,7 +104,7 @@ onUnmounted(() => {
   justify-content: stretch;
   align-items: center;
   gap: 8px;
-  margin: 16px 8px;
+  margin: 16px 0;
   padding: 0;
 }
 
@@ -123,5 +127,28 @@ onUnmounted(() => {
 .todo-filter-tab > li.active {
   background-color: dodgerblue;
   color: white;
+}
+
+.todo-search-container {
+  flex: 0 0 40px;
+  margin: 0 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+}
+
+.todo-search-container > input {
+  flex: 0 0 100px;
+  color: black;
+  border: 1px solid lightgray;
+  border-radius: 32px;
+  padding: 8px 16px;
+  outline: none;
+  text-align: end;
+}
+
+.todo-search-container > input:focus {
+  border: 2px solid dodgerblue;
 }
 </style>

@@ -1,23 +1,23 @@
-const storeKey = "todo_store_key";
+const storageKey = "todo_store_key";
 
-const store = JSON.parse(localStorage.getItem(storeKey)) ?? {};
+const _storage = JSON.parse(localStorage.getItem(storageKey)) ?? {};
 console.log(`store initialized`);
 
 function commit() {
-  localStorage.setItem(storeKey, JSON.stringify(store));
+  localStorage.setItem(storageKey, JSON.stringify(_storage));
 }
 
-export const todoStore = {
+export const todoStorage = {
   insert(todo) {
     if (!todo.id) {
       console.log("TODO 객체에 ID가 없습니다.");
       return;
     }
-    if (store[todo.id]) {
+    if (_storage[todo.id]) {
       console.log(`이미 저장된 객체입니다. [id=${todo.id}]`);
       return;
     }
-    store[todo.id] = todo.serialize();
+    _storage[todo.id] = todo.serialize();
     commit();
   },
   delete(todo) {
@@ -25,7 +25,7 @@ export const todoStore = {
       console.log("TODO 객체에 ID가 없습니다.");
       return;
     }
-    delete store[todo.id];
+    delete _storage[todo.id];
     commit();
   },
   update(todo) {
@@ -33,15 +33,15 @@ export const todoStore = {
       console.log("TODO 객체에 ID가 없습니다.");
       return;
     }
-    if (!store[todo.id]) {
+    if (!_storage[todo.id]) {
       console.log(`존재하지 않는 객체입니다. [id=${todo.id}]`);
       return;
     }
-    store[todo.id] = todo.serialize();
+    _storage[todo.id] = todo.serialize();
     commit();
   },
   upsert(todo) {
-    if (!store[todo.id]) {
+    if (!_storage[todo.id]) {
       this.insert(todo);
     } else {
       this.update(todo);
@@ -50,7 +50,7 @@ export const todoStore = {
   selectAll() {
     // store 값을 카피해서 전달
     const arr = [];
-    Object.values(store).forEach((val) => {
+    Object.values(_storage).forEach((val) => {
       arr.push({ ...val });
     });
     return arr;
