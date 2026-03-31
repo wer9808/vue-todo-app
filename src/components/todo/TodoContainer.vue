@@ -42,13 +42,20 @@ const currentFilter = computed(() => {
   return filters.find((filter) => filter.id === currentFilterId.value);
 });
 
+const titleSearchText = ref("");
+
 const storedTodos = todoStore
   .selectAll()
   .map((storeTodo) => TodoModel.fromSerialized(storeTodo));
 const allTodos = reactive(storedTodos);
 
 const displayTodos = computed(() => {
-  const todos = currentFilter.value.filter(allTodos);
+  let todos = currentFilter.value.filter(allTodos);
+  if (titleSearchText.value) {
+    todos = todos.filter((todo) => {
+      return todo.content.includes(titleSearchText.value);
+    });
+  }
   return todos;
 });
 
@@ -160,6 +167,12 @@ const handleDeleteSelectedTodos = () => {
     selectionList.unselect(todo);
   });
 };
+
+const handleSearchTodos = (searchAttr, value) => {
+  if (searchAttr === "title") {
+    titleSearchText.value = value;
+  }
+};
 </script>
 
 <template>
@@ -168,6 +181,7 @@ const handleDeleteSelectedTodos = () => {
       :current-filter="currentFilterId"
       :filters="filters"
       @change-filter="handleChangeFilter"
+      @search-todos="handleSearchTodos"
     />
     <TodoList
       :items="displayTodos"

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
-const emit = defineEmits(["change-filter"]);
+const emit = defineEmits(["change-filter", "search-todos"]);
 
 const { currentFilter, filters } = defineProps({
   currentFilter: String,
@@ -15,6 +15,11 @@ const dateString = computed(() => now.value.toLocaleDateString());
 
 const changeFilter = (id) => {
   emit("change-filter", id);
+};
+
+const handleSearchInput = ($e) => {
+  const searchText = $e.target.value;
+  emit("search-todos", "title", searchText);
 };
 
 // 시간 갱신 타이머 핸들
@@ -53,7 +58,7 @@ onUnmounted(() => {
       </li>
     </ul>
     <div class="todo-search-container">
-      <input type="text" placeholder="할일 검색" />
+      <input type="text" placeholder="할일 검색" @input="handleSearchInput" />
     </div>
   </div>
 </template>
