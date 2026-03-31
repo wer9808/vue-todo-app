@@ -25,7 +25,7 @@ const untilDateString = computed(() => {
   const until = todo.until;
   const year = until.getFullYear().toString();
   const month = (until.getMonth() + 1).toString();
-  const day = DateUtil.getDayString(until);
+  const day = until.getDate().toString();
   const hour = until.getHours().toString();
   const ampm = DateUtil.getAmPmString(until);
   const minute = DateUtil.getMinuteString(until);
