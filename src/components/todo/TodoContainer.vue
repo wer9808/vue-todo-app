@@ -11,7 +11,7 @@ import { TodoTextSearchFilter } from "@/models/TodoFilter";
 
 const [curFilter, _] = useMainFilters();
 
-const titleSearchFilter = ref(new TodoTextSearchFilter("title", "content", ""));
+const titleSearchFilter = ref(new TodoTextSearchFilter("title", "title", ""));
 const searchFilters = reactive([titleSearchFilter]);
 
 const savedTodos = todoStorage
@@ -49,16 +49,18 @@ const findTodoById = (todoId) => {
   return allTodos.find((todo) => todo.id === todoId);
 };
 
-const createTodo = ({ content, until }) => {
-  const newTodo = TodoModel.create({ content, until });
+const createTodo = ({ title, until }) => {
+  const newTodo = TodoModel.create({ title, until });
   allTodos.push(newTodo);
   todoStorage.upsert(newTodo);
 };
 
-const updateTodo = (todo, { content, until, progress }) => {
+const updateTodo = (todo, { title, content, until, progress, labels }) => {
+  if (title) todo.title = title;
   if (content) todo.content = content;
   if (until) todo.until = until;
   if (progress) todo.progress = progress;
+  if (labels) todo.labels = labels;
   todoStorage.update(unref(todo));
 };
 

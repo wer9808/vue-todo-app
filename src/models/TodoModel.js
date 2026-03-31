@@ -1,49 +1,86 @@
 class TodoModel {
-  constructor(id, content, progress, until, createdAt) {
-    this.id = id;
-    this.content = content;
+  constructor(
+    id,
+    title,
+    progress,
+    until,
+    createdAt,
+    content = "",
+    labels = [],
+  ) {
+    this._id = id;
+    this.title = title;
     this.progress = progress;
     this.until = until;
     this.createdAt = createdAt;
+    this.content = content;
+    this.labels = labels;
   }
 
-  static fromObject({ id, content, progress, until, createdAt }) {
-    return new TodoModel(id, content, progress, until, createdAt);
+  get id() {
+    return this._id;
   }
 
-  static create({ content, until }) {
+  static fromObject({
+    id,
+    title,
+    progress,
+    until,
+    createdAt,
+    content,
+    labels,
+  }) {
+    return new TodoModel(
+      id,
+      title,
+      progress,
+      until,
+      createdAt,
+      content,
+      labels,
+    );
+  }
+
+  static create({ title, until }) {
+    const id = crypto.randomUUID();
+    const untilCopy = new Date(until.getTime());
     const now = new Date();
-    const id = now.getTime();
-    return new TodoModel(id, content, "wait", new Date(until.getTime()), now);
+    return new TodoModel(id, title, "wait", untilCopy, now);
   }
 
   serialize() {
     return {
       id: this.id,
-      content: this.content,
+      title: this.title,
       progress: this.progress,
       until: this.until.getTime(),
       createdAt: this.createdAt.getTime(),
+      content: this.content,
+      labels: this.labels,
     };
   }
 
   static serialize(todo) {
     return {
       id: todo.id,
-      content: todo.content,
+      title: todo.title,
       progress: todo.progress,
       until: todo.until.getTime(),
       createdAt: todo.createdAt.getTime(),
+      content: todo.content,
+      labels: todo.labels,
     };
   }
 
   static fromSerialized(serializedTodo) {
     return new TodoModel(
       serializedTodo.id,
-      serializedTodo.content,
+      serializedTodo.title,
       serializedTodo.progress,
       new Date(serializedTodo.until),
       new Date(serializedTodo.createdAt),
+      serializedTodo.content,
+      serializedTodo.labels,
     );
   }
 

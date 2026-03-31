@@ -86,12 +86,15 @@ const handleMultiProgressChange = ($e) => {
         삭제
       </button>
     </div>
-    <div class="todo-list-header todo-list-item">
-      <div class="todo-list-item-column">선택</div>
-      <div class="todo-list-item-column">할일</div>
-      <div class="todo-list-item-column">진행상태</div>
-      <div class="todo-list-item-column">종료일</div>
-      <div class="todo-list-item-column">수정 / 삭제</div>
+    <div class="todo-list-items-header">
+      <div class="todo-list-item-column todo-list-item-check">선택</div>
+      <div class="todo-list-item-column todo-list-item-title">할일</div>
+      <div class="todo-list-item-column todo-list-item-labels">태그</div>
+      <div class="todo-list-item-column todo-list-item-state">진행상태</div>
+      <div class="todo-list-item-column todo-list-item-until">종료일</div>
+      <div class="todo-list-item-column todo-list-item-control">
+        수정 / 삭제
+      </div>
     </div>
     <div class="todo-list-items" v-if="items.length > 0">
       <TodoListItem
@@ -113,6 +116,8 @@ const handleMultiProgressChange = ($e) => {
 </template>
 
 <style scoped>
+@import "@/assets/todo-container/TodoListItemsHeader.css";
+
 .todo-list {
   border: 1px solid lightgray;
   border-radius: 8px;
@@ -125,41 +130,6 @@ const handleMultiProgressChange = ($e) => {
   gap: 4px;
 
   box-shadow: 1px 1px 2px lightgray;
-}
-
-.todo-list-header {
-  background-color: white;
-  margin: 8px;
-  border: 1px solid lightgray;
-  padding: 0 8px;
-  border-radius: 8px;
-  flex: 0 0 32px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: center;
-  box-shadow: 1px 1px 2px lightgray;
-}
-
-.todo-list-item > * {
-  text-align: center;
-}
-
-.todo-list-item-column:nth-child(1) {
-  flex: 0 0 100px;
-}
-.todo-list-item-column:nth-child(2) {
-  flex: 1 1 200px;
-}
-.todo-list-item-column:nth-child(3) {
-  flex: 0 0 80px;
-}
-.todo-list-item-column:nth-child(4) {
-  flex: 0 0 200px;
-}
-.todo-list-item-column:nth-child(5) {
-  flex: 0 0 160px;
 }
 
 .todo-list-control {

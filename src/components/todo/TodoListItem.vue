@@ -13,7 +13,7 @@ const emit = defineEmits([
 const { todo, selected } = defineProps({
   todo: {
     id: Number,
-    content: String,
+    title: String,
     progress: String,
   },
   selected: Boolean,
@@ -89,9 +89,14 @@ const handleCancelEdit = () => {
         class="todo-list-item-checkbox-label"
       ></label>
     </div>
-    <div class="todo-list-item-content todo-list-item-column">
+    <div class="todo-list-item-title todo-list-item-column">
       <div class="todo-list-item-text">
-        {{ todo.content }}
+        {{ todo.title }}
+      </div>
+    </div>
+    <div class="todo-list-item-labels todo-list-item-column">
+      <div class="todo-list-item-label" v-for="label in todo.labels">
+        {{ label }}
       </div>
     </div>
     <div class="todo-list-item-state todo-list-item-column">
@@ -127,46 +132,9 @@ const handleCancelEdit = () => {
 </template>
 
 <style scoped>
-.todo-list-item {
-  background-color: white;
-  margin: 8px;
-  border: 1px solid lightgray;
-  border-radius: 32px;
-  padding: 12px 8px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: center;
-  box-shadow: 1px 1px 1px lightgray;
-}
+@import "@/assets/todo-container/TodoListItem.css";
 
-.todo-list-item:hover {
-  background-color: ghostwhite;
-  padding: 13px 8px;
-}
-
-.todo-list-item > * {
-  text-align: center;
-}
-
-.todo-list-item-column:nth-child(1) {
-  flex: 0 0 100px;
-}
-.todo-list-item-column:nth-child(2) {
-  flex: 1 1 200px;
-}
-.todo-list-item-column:nth-child(3) {
-  flex: 0 0 80px;
-}
-.todo-list-item-column:nth-child(4) {
-  flex: 0 0 200px;
-}
-.todo-list-item-column:nth-child(5) {
-  flex: 0 0 160px;
-}
-
-.todo-list-item-content {
+.todo-list-item-title {
   overflow: hidden;
 }
 
@@ -220,5 +188,24 @@ const handleCancelEdit = () => {
   color: crimson;
   padding: 4px;
   padding-right: 16px;
+}
+
+.todo-list-item-labels {
+  overflow: scroll;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: start;
+  align-items: start;
+  gap: 4px;
+}
+
+.todo-list-item-label {
+  flex: 0 0 auto;
+  color: white;
+  background-color: dodgerblue;
+  border-radius: 16px;
+  padding: 4px 16px;
+  font-size: 0.8rem;
 }
 </style>
