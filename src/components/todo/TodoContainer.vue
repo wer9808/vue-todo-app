@@ -5,38 +5,19 @@ import TodoInput from "@/components/todo/TodoInput.vue";
 import TodoList from "@/components/todo/TodoList.vue";
 import { todoStore } from "@/stores/TodoStore";
 import TodoModel from "@/models/TodoModel";
+import { TodoFilter, TodoAttributeFilter } from "@/models/TodoFilter";
 import { useSelectionList } from "@/hooks/useSelectionList";
 
-class TodoFilter {
-  constructor(id, text) {
-    this.id = id;
-    this.text = text;
-    this.filterType = "none";
-  }
-
-  filter(itemArr) {
-    return [...itemArr];
-  }
-}
-
-class TodoLabelFilter extends TodoFilter {
-  constructor(id, label, text) {
-    super(id, text);
-    this.label = label;
-    this.filterType = "label";
-  }
-
-  filter(itemArr) {
-    return [...itemArr.filter((item) => item[this.label] === this.id)];
-  }
-}
-
 const allFilter = new TodoFilter("all", "전체");
-const waitFilter = new TodoLabelFilter("wait", "progress", "대기");
-const ongoingFilter = new TodoLabelFilter("ongoing", "progress", "진행중");
-const completedFilter = new TodoLabelFilter("completed", "progress", "완료");
-
+const waitFilter = new TodoAttributeFilter("wait", "progress", "대기");
+const ongoingFilter = new TodoAttributeFilter("ongoing", "progress", "진행중");
+const completedFilter = new TodoAttributeFilter(
+  "completed",
+  "progress",
+  "완료",
+);
 const filters = [allFilter, waitFilter, ongoingFilter, completedFilter];
+
 const currentFilterId = ref("all");
 const currentFilter = computed(() => {
   return filters.find((filter) => filter.id === currentFilterId.value);
