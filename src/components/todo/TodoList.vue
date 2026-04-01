@@ -65,11 +65,18 @@ const handleMultiProgressChange = ($e) => {
 </script>
 
 <template>
-  <div class="todo-list">
-    <div class="todo-list-control">
-      <button @click="handleSelectAll">전체 선택</button>
+  <div
+    class="flex w-full flex-col justify-start items-center gap-4 bg-white m-2 p-4 border-1 border-gray-100 rounded-xl shadow-md shadow-gray-300"
+  >
+    <div class="flex w-full flex-row flex-initial gap-2">
+      <button
+        class="flex-none basis text-blue-500 text-sm md:text-base cursor-pointer"
+        @click="handleSelectAll"
+      >
+        전체 선택
+      </button>
       <select
-        class="todo-progress-select"
+        class="flex-none w-24 text-blue-500 text-sm md:text-base text-end cursor-pointer disabled:text-gray-300 disabled:cursor-not-allowed"
         ref="todo-progress-select"
         @change="handleMultiProgressChange"
       >
@@ -79,24 +86,26 @@ const handleMultiProgressChange = ($e) => {
         <option value="completed">완료</option>
       </select>
       <button
-        class="multi-delete-btn"
+        class="flex-none w-16 text-red-500 text-sm md:text-base cursor-pointer disabled:text-gray-300 disabled:cursor-not-allowed"
         :disabled="!canMultiDelete"
         @click="handleMultiDelete"
       >
         삭제
       </button>
     </div>
-    <div class="todo-list-items-header">
-      <div class="todo-list-item-column todo-list-item-check">선택</div>
-      <div class="todo-list-item-column todo-list-item-title">할일</div>
-      <div class="todo-list-item-column todo-list-item-labels">태그</div>
-      <div class="todo-list-item-column todo-list-item-state">진행상태</div>
-      <div class="todo-list-item-column todo-list-item-until">종료일</div>
-      <div class="todo-list-item-column todo-list-item-control">
-        수정 / 삭제
+    <div
+      class="flex flex-1 w-full basis-md flex-col justify-start items-start md:items-center overflow-scroll"
+    >
+      <div
+        class="flex min-w-2xl w-full flex-row justify-between items-center gap-2 mb-2 p-2 border-1 border-gray-200 rounded-md"
+      >
+        <div class="grow-1 text-center basis-16">선택</div>
+        <div class="grow-2 text-center basis-16">할일</div>
+        <div class="grow-1 text-center basis-16">라벨</div>
+        <div class="grow-1 text-center basis-16">진행상태</div>
+        <div class="grow-2 text-center basis-16">종료일</div>
+        <div class="grow-1 text-center basis-16">수정 / 삭제</div>
       </div>
-    </div>
-    <div class="todo-list-items" v-if="items.length > 0">
       <TodoListItem
         v-for="(item, idx) in items"
         :key="item.id"
@@ -109,82 +118,7 @@ const handleMultiProgressChange = ($e) => {
       />
     </div>
     <!-- 할 일 목록이 없을 때 -->
-    <div class="todo-list-no-item" v-else>
-      <p>할일 목록이 없습니다.</p>
-    </div>
   </div>
 </template>
 
-<style scoped>
-@import "@/assets/todo-container/TodoListItemsHeader.css";
-
-.todo-list {
-  border: 1px solid lightgray;
-  border-radius: 8px;
-  padding: 8px;
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: stretch;
-  gap: 4px;
-
-  box-shadow: 1px 1px 2px lightgray;
-}
-
-.todo-list-control {
-  flex: 0 0 32px;
-  margin: 0 16px;
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-  gap: 4px;
-}
-
-.todo-list-control > select {
-  color: dodgerblue;
-  border: 1px solid lightslategray;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  padding: 4px;
-}
-
-.todo-list-control > select:disabled {
-  color: gray;
-  border: 1px solid gray;
-  background-color: white;
-  cursor: not-allowed;
-}
-
-.todo-list-control > button {
-  color: dodgerblue;
-  background: none;
-  border: 0;
-  padding: 0 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.todo-list-control > .multi-delete-btn {
-  color: crimson;
-}
-
-.todo-list-control > button:disabled {
-  color: lightslategray;
-  cursor: not-allowed;
-}
-
-.todo-list-items {
-  overflow: scroll;
-  flex: 1 1 400px;
-}
-
-.todo-list-no-item {
-  flex: 1 1 auto;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-</style>
+<style scoped></style>

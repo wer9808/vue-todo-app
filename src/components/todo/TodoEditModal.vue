@@ -96,23 +96,48 @@ const cancelEdit = () => {
 </script>
 
 <template>
-  <div class="container">
-    <div class="modal-box">
+  <div class="fixed top-0 left-0 w-screen h-screen bg-black/50 z-999">
+    <div
+      class="absolute top-1/2 left-1/2 -translate-1/2 flex flex-col justify-center items-stretch gap-8 w-md h-md bg-white p-4 rounded-lg"
+    >
       <h2>TODO 변경</h2>
-      <div class="properties-box">
+      <div
+        class="flex flex-auto flex-col justify-start items-start gap-2 overflow-scroll"
+      >
         <label>제목</label>
-        <input type="text" :value="inputTitle" @input="handleTitleInput" />
+        <input
+          class="w-full h-10 px-4 border-1 border-gray-300 rounded-full"
+          type="text"
+          :value="inputTitle"
+          @input="handleTitleInput"
+        />
         <label>종료일</label>
-        <input type="date" :value="inputDateValue" @input="handleDateInput" />
-        <input type="time" :value="inputTimeValue" @input="handleTimeInput" />
+        <input
+          class="w-full h-10 px-4 border-1 border-gray-300 rounded-full"
+          type="date"
+          :value="inputDateValue"
+          @input="handleDateInput"
+        />
+        <input
+          class="w-full h-10 px-4 border-1 border-gray-300 rounded-full"
+          type="time"
+          :value="inputTimeValue"
+          @input="handleTimeInput"
+        />
         <label>라벨</label>
-        <div class="add-label-box">
+        <div class="flex w-full h-10 flex-row gap-2">
           <input
+            class="flex-1 px-4 border-1 border-gray-300 rounded-full"
             type="text"
             @input="handleLabelInput"
             :value="inputLabelValue"
           />
-          <button @click="handleAddLabel">+</button>
+          <button
+            class="flex-none w-10 bg-blue-400 text-white rounded-full"
+            @click="handleAddLabel"
+          >
+            +
+          </button>
         </div>
         <div class="todo-label-box">
           <div class="todo-label" v-for="label in labels">
@@ -134,34 +159,6 @@ const cancelEdit = () => {
 </template>
 
 <style scoped>
-.container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.8);
-  width: 100vw;
-  height: 100vh;
-  z-index: 999;
-}
-
-.modal-box {
-  position: absolute;
-  background-color: white;
-  width: 600px;
-  height: 400px;
-  border: 1px solid lightgray;
-  border-radius: 16px;
-  padding: 16px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
-  gap: 8px;
-}
-
 .properties-box {
   flex: 1 1 auto;
   overflow: scroll;
