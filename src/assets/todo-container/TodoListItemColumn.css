@@ -1,0 +1,25 @@
+.todo-list-item-column {
+  text-align: center;
+  flex: 0 0 100px;
+  max-height: 32px;
+}
+
+.todo-list-item-check {
+  flex: 0 0 100px;
+}
+
+.todo-list-item-title {
+  flex: 1 1 200px;
+}
+
+.todo-list-item-state {
+  flex: 0 0 80px;
+}
+
+.todo-list-item-until {
+  flex: 0 0 200px;
+}
+
+.todo-list-item-control {
+  flex: 0 0 160px;
+}

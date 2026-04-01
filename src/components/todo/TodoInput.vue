@@ -26,7 +26,7 @@ const getDefaultUntil = () => {
   return defaultDateTime;
 };
 
-const todoContent = ref("");
+const todoTitle = ref("");
 
 const inputDateValue = ref();
 const inputTimeValue = ref();
@@ -46,8 +46,8 @@ const selectedDateTime = computed(() => {
   return datetime;
 });
 
-const handleContentInput = ($e) => {
-  todoContent.value = $e.target.value;
+const handleTitleInput = ($e) => {
+  todoTitle.value = $e.target.value;
 };
 
 const handleDateInput = ($e) => {
@@ -66,16 +66,16 @@ const addTodo = () => {
     alert("최소 한 시간 이후 날짜를 선택해주세요");
     return;
   }
-  const content = todoContent.value.trim();
-  if (!content) {
+  const title = todoTitle.value.trim();
+  if (!title) {
     alert("할 일을 입력해주세요");
     return;
   }
   emit("add-todo", {
-    content: todoContent.value,
+    title: todoTitle.value,
     until: selectedDateTime.value,
   });
-  todoContent.value = "";
+  todoTitle.value = "";
   resetUntil();
 };
 </script>
@@ -98,8 +98,8 @@ const addTodo = () => {
       type="text"
       class="todo-input-text"
       placeholder="할 일을 입력하세요."
-      :value="todoContent"
-      @input="handleContentInput"
+      :value="todoTitle"
+      @input="handleTitleInput"
     />
     <button class="todo-input-submit-btn" @click="addTodo">등록</button>
   </div>
