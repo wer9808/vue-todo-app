@@ -146,7 +146,7 @@ const handleSearchTodos = (searchAttr, value) => {
 </script>
 
 <template>
-  <div class="todo-container">
+  <div class="w-full flex flex-col justify-start items-center gap-1 p-4">
     <TodoHeader
       @change-filter="handleChangeFilter"
       @search-todos="handleSearchTodos"
@@ -166,15 +166,4 @@ const handleSearchTodos = (searchAttr, value) => {
   </div>
 </template>
 
-<style scoped>
-.todo-container {
-  padding: 8px;
-  height: 100vh;
-  max-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: stretch;
-  gap: 8px;
-}
-</style>
+<style scoped></style>

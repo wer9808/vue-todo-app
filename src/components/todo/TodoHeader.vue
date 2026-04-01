@@ -35,120 +35,40 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="todo-header">
-    <div class="title-container">
-      <div class="title">TodoTodo</div>
-      <div class="datetime-box">
-        <div class="date">{{ dateString }}</div>
-        <div class="clock">{{ timeString }}</div>
+  <div class="flex w-full flex-initial flex-col m-2">
+    <div class="flex flex-initial flex-row justify-between items-center my-2">
+      <div class="flex-initial text-3xl md:text-6xl">TodoTodo</div>
+      <div class="flex-1 flex flex-col justify-start items-end">
+        <div class="md:text-xl">{{ dateString }}</div>
+        <div class="md:text-3xl">{{ timeString }}</div>
       </div>
     </div>
-    <ul class="todo-filter-tab">
+    <div class="grid grid-cols-2 md:grid-cols-4 my-2 gap-4">
       <li
         v-for="filter in mainFilters"
         :key="filter.id"
-        :class="filter.id === curFilter.id ? `active` : ``"
+        class="list-none text-center my-0 md:my-2 py-4 border-1 border-gray-100 rounded-md shadow-md shadow-gray-300 cursor-pointer hover:bg-sky-300 hover:text-white hover:border-none"
+        :class="
+          filter.id === curFilter.id
+            ? `bg-sky-500 text-white border-none pointer-events-none`
+            : `bg-white text-black`
+        "
         @click="setFilter(filter.id)"
       >
         {{ filter.text }}
       </li>
-    </ul>
-    <div class="todo-search-container">
-      <input type="text" placeholder="할일 검색" @input="handleSearchInput" />
+    </div>
+    <div
+      class="flex flex-row justify-center md:justify-end items-center basis-auto mx-1 my-4 md:my-2"
+    >
+      <input
+        class="flex-none w-xs sm:w-sm md:w-60 bg-white text-md md:text-sm md:text-base text-center md:text-end placeholder:text-gray-400 placeholder:text-shadow-sm px-4 py-3 md:py-2 outline-2 outline-gray-200 rounded-full shadow-md shadow-gray-400 focus:outline-2 focus:outline-blue-400 focus:placeholder:text-blue-400"
+        type="text"
+        placeholder="검색"
+        @input="handleSearchInput"
+      />
     </div>
   </div>
 </template>
 
-<style scoped>
-.todo-header {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.title-container {
-  margin: 16px;
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: end;
-}
-
-.title {
-  font-size: 3rem;
-  font-weight: bold;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.datetime-box {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: end;
-}
-
-.datetime-box > .date {
-  font-size: 1.2rem;
-}
-
-.datetime-box > .clock {
-  font-size: 2rem;
-}
-
-.todo-filter-tab {
-  flex: 0 0 40px;
-  display: flex;
-  flex-direction: row;
-  justify-content: stretch;
-  align-items: center;
-  gap: 8px;
-  margin: 16px 0;
-  padding: 0;
-}
-
-.todo-filter-tab > li {
-  flex: 1 1 auto;
-  list-style: none;
-  cursor: pointer;
-  text-align: center;
-  border: 1px solid lightgray;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0px 2px 8px lightgray;
-}
-
-.todo-filter-tab > li:hover {
-  color: white;
-  background-color: deepskyblue;
-}
-
-.todo-filter-tab > li.active {
-  background-color: dodgerblue;
-  color: white;
-}
-
-.todo-search-container {
-  flex: 0 0 40px;
-  margin: 0 8px;
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
-  align-items: center;
-}
-
-.todo-search-container > input {
-  flex: 0 0 100px;
-  color: black;
-  border: 1px solid lightgray;
-  border-radius: 32px;
-  padding: 8px 16px;
-  outline: none;
-  text-align: end;
-}
-
-.todo-search-container > input:focus {
-  border: 2px solid dodgerblue;
-}
-</style>
+<style scoped></style>
