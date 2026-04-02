@@ -17,8 +17,7 @@ const { items, selectedItems } = defineProps(["items", "selectedItems"]);
 const canMultiChange = computed(() => selectedItems.value.length > 0);
 const canMultiDelete = computed(() => selectedItems.value.length > 0);
 const allSelected = () => {
-  const anyUnselected = items.find((item) => item.selected === false);
-  return !anyUnselected;
+  return items.length === selectedItems.value.length;
 };
 
 const isSelected = (item) => {
@@ -55,7 +54,7 @@ const handleSelectTodo = castEvent("select-todo");
 const handleMultiDelete = castEvent("delete-selected-todos");
 const handleSelectAll = () => {
   const todoIds = items.map((todo) => todo.id);
-  emit("select-multi-todos", todoIds, !allSelected());
+  emit("select-multi-todos", todoIds, allSelected());
 };
 
 const handleMultiProgressChange = ($e) => {

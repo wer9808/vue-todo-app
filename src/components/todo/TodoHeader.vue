@@ -1,12 +1,12 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { TodoFilter, TodoAttributeFilter } from "@/models/TodoFilter";
-import { useFilterMap } from "@/hooks/useTodoFilter";
-import { useMainFilters } from "@/stores/TodoFilterStore";
+import { Filter, AttributeFilter } from "@/models/Filter";
+import { useFilterMap } from "@/hooks/useFilterMap";
+import { useTodoFilterStore } from "@/stores/TodoFilterStore";
 
 const emit = defineEmits(["change-filter", "search-todos"]);
 
-const [curFilter, setFilter, mainFilters] = useMainFilters();
+const [curFilter, setFilter, mainFilters] = useTodoFilterStore();
 
 const now = ref(new Date());
 

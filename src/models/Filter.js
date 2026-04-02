@@ -1,4 +1,4 @@
-export class TodoFilter {
+export class Filter {
   constructor(id, text) {
     this.id = id;
     this.text = text;
@@ -10,7 +10,7 @@ export class TodoFilter {
   }
 }
 
-export class TodoAttributeFilter extends TodoFilter {
+export class AttributeFilter extends Filter {
   constructor(id, attr, text) {
     super(id, text);
     this.attr = attr;
@@ -22,7 +22,7 @@ export class TodoAttributeFilter extends TodoFilter {
   }
 }
 
-export class TodoTextSearchFilter extends TodoFilter {
+export class TextSearchFilter extends Filter {
   constructor(id, attr, text) {
     super(id, text);
     this.attr = attr;
@@ -48,7 +48,7 @@ export class TodoTextSearchFilter extends TodoFilter {
   }
 }
 
-export class TodoCustomFilter extends TodoFilter {
+export class CustomFilter extends Filter {
   constructor(id, text, customFilter) {
     super(id, text);
     this._filter = customFilter;

@@ -1,15 +1,15 @@
-import { TodoFilter, TodoAttributeFilter } from "@/models/TodoFilter";
-import { useFilterMap } from "@/hooks/useTodoFilter";
+import { Filter, AttributeFilter } from "@/models/Filter";
+import { useFilterMap } from "@/hooks/useFilterMap";
 
 const _mainFilters = [
-  new TodoFilter("all", "전체"),
-  new TodoAttributeFilter("wait", "progress", "대기"),
-  new TodoAttributeFilter("ongoing", "progress", "진행중"),
-  new TodoAttributeFilter("completed", "progress", "완료"),
+  new Filter("all", "전체"),
+  new AttributeFilter("wait", "progress", "대기"),
+  new AttributeFilter("ongoing", "progress", "진행중"),
+  new AttributeFilter("completed", "progress", "완료"),
 ];
 
 const [filter, setFilter] = useFilterMap(..._mainFilters);
 
-export const useMainFilters = () => {
+export const useTodoFilterStore = () => {
   return [filter, setFilter, _mainFilters];
 };

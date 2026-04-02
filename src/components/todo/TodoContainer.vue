@@ -6,21 +6,20 @@ import TodoList from "@/components/todo/TodoList.vue";
 import { todoStorage } from "@/storages/TodoStorage";
 import TodoModel from "@/models/TodoModel";
 import { useSelectionList } from "@/hooks/useSelectionList";
-import { useMainFilters } from "@/stores/TodoFilterStore";
-import { TodoTextSearchFilter } from "@/models/TodoFilter";
+import { useTodoFilterStore } from "@/stores/TodoFilterStore";
+import { TextSearchFilter } from "@/models/Filter";
+import { useTodoStore } from "@/stores/TodoStore";
+import { useTodoContainerStore } from "@/stores/TodoContainerStore";
 
-const [curFilter, _] = useMainFilters();
+const [curFilter, _] = useTodoFilterStore();
 
-const titleSearchFilter = ref(new TodoTextSearchFilter("title", "title", ""));
+const titleSearchFilter = ref(new TextSearchFilter("title", "title", ""));
 const searchFilters = reactive([titleSearchFilter]);
 
-const savedTodos = todoStorage
-  .selectAll()
-  .map((storeTodo) => TodoModel.fromSerialized(storeTodo));
-const allTodos = reactive(savedTodos);
+const todoStore = useTodoStore();
 
 const displayTodos = computed(() => {
-  let todos = curFilter.value.filter(allTodos);
+  let todos = curFilter.value.filter(todoStore.items);
   for (let filter of searchFilters) {
     todos = filter.value.filter(todos);
   }
@@ -45,75 +44,47 @@ watch(displayTodos, (current, old) => {
   }
 });
 
-const findTodoById = (todoId) => {
-  return allTodos.find((todo) => todo.id === todoId);
-};
-
-const createTodo = ({ title, until }) => {
-  const newTodo = TodoModel.create({ title, until });
-  allTodos.push(newTodo);
-  todoStorage.upsert(newTodo);
-};
-
-const updateTodo = (todo, { title, content, until, progress, labels }) => {
-  if (title) todo.title = title;
-  if (content) todo.content = content;
-  if (until) todo.until = until;
-  if (progress) todo.progress = progress;
-  if (labels) todo.labels = labels;
-  todoStorage.update(unref(todo));
-};
-
-const deleteTodo = (todo) => {
-  const idx = allTodos.indexOf(todo);
-  allTodos.splice(idx, 1);
-  todoStorage.delete(todo);
-};
-
 const handleChangeFilter = (filter) => {
   curFilter.value = filter;
 };
 
 const handleAddTodo = (todo) => {
-  createTodo(todo);
+  todoStore.create(todo);
 };
 
 const handleToggleTodoProgress = (todoId) => {
-  const todo = findTodoById(todoId);
+  const todo = todoStore.find(todoId);
   if (!todo) return;
-  if (todo.progress === "wait") {
-    todo.progress = "ongoing";
-  } else if (todo.progress === "ongoing") {
-    todo.progress = "completed";
-  } else if (todo.progress === "completed") {
-    todo.progress = "wait";
+  let progress = todo.progress;
+  if (progress === "wait") {
+    progress = "ongoing";
+  } else if (progress === "ongoing") {
+    progress = "completed";
+  } else if (progress === "completed") {
+    progress = "wait";
   }
-  updateTodo(todo, { progress: todo.progress });
+  todoStore.update(todoId, { progress });
 };
 
 const handleDeleteTodo = (todoId) => {
-  const todo = findTodoById(todoId);
-  if (!todo) return;
-  deleteTodo(todo);
+  todoStore.delete(todoId);
 };
 
 const handleEditTodo = (todoId, update) => {
-  const todo = findTodoById(todoId);
-  if (!todo) return;
-  updateTodo(todo, update);
+  todoStore.update(todoId, update);
 };
 
 const handleSelectTodo = (todoId) => {
-  const todo = findTodoById(todoId);
+  const todo = todoStore.find(todoId);
   if (!todo) return;
   selectionList.toggle(todo);
 };
 
-const handleSelectMultiTodos = (todoIds, selected) => {
+const handleSelectMultiTodos = (todoIds, allSelected) => {
   todoIds.forEach((todoId) => {
-    const todo = findTodoById(todoId);
+    const todo = todoStore.find(todoId);
     if (!todo) return;
-    if (selectionList.find(todo)) {
+    if (allSelected) {
       selectionList.unselect(todo);
     } else {
       selectionList.select(todo);
@@ -126,14 +97,14 @@ const handleChangeSelectedTodos = (name, value) => {
   targetTodos.forEach((todo) => {
     const update = {};
     update[name] = value;
-    updateTodo(todo, update);
+    todoStore.update(todo.id, update);
   });
 };
 
 const handleDeleteSelectedTodos = () => {
   const targetTodos = selectionList.items.value.slice();
   targetTodos.forEach((todo) => {
-    deleteTodo(todo);
+    todoStore.delete(todo.id);
     selectionList.unselect(todo);
   });
 };

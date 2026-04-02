@@ -29,5 +29,13 @@ export const useFilterMap = (...filters) => {
     }
   };
 
-  return [_currentFilter, _setFilter];
+  const _clearFilter = () => {
+    _currentFilter.value = null;
+  };
+
+  return {
+    current: _currentFilter,
+    set: _setFilter,
+    clear: _clearFilter,
+  };
 };
