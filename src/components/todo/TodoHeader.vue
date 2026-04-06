@@ -1,21 +1,42 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { TodoFilter, TodoAttributeFilter } from "@/models/TodoFilter";
-import { useFilterMap } from "@/hooks/useTodoFilter";
-import { useMainFilters } from "@/stores/TodoFilterStore";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useTodoContainer } from "@/components/todo/useTodoContainer";
 
-const emit = defineEmits(["change-filter", "search-todos"]);
+class ProgressFilterItem {
+  constructor(key, text, value) {
+    this.key = key;
+    this.text = text;
+    this.value = value;
+  }
+}
 
-const [curFilter, setFilter, mainFilters] = useMainFilters();
+const progressFilters = reactive([
+  new ProgressFilterItem("all", "전체", ""),
+  new ProgressFilterItem("wait", "대기", "wait"),
+  new ProgressFilterItem("ongoing", "진행중", "ongoing"),
+  new ProgressFilterItem("completed", "완료", "completed"),
+]);
+
+const currentFilterIndex = ref(0);
+const currentFilter = computed(() => {
+  return progressFilters[currentFilterIndex.value];
+});
+
+const todoContainerStore = useTodoContainer();
 
 const now = ref(new Date());
 
 const timeString = computed(() => now.value.toLocaleTimeString());
-const dateString = computed(() => now.value.toLocaleDateString());
+const dateString = computed(() => now.value.toDateString());
 
 const handleSearchInput = ($e) => {
   const searchText = $e.target.value;
-  emit("search-todos", "title", searchText);
+  todoContainerStore.filter.title(searchText);
+};
+
+const handleClickProgressFilter = (index) => {
+  currentFilterIndex.value = index;
+  todoContainerStore.filter.progress(currentFilter.value.value);
 };
 
 // 시간 갱신 타이머 핸들
@@ -45,15 +66,15 @@ onUnmounted(() => {
     </div>
     <div class="grid grid-cols-2 md:grid-cols-4 my-2 gap-4">
       <li
-        v-for="filter in mainFilters"
-        :key="filter.id"
+        v-for="(filter, idx) in progressFilters"
+        :key="filter.name"
         class="list-none text-center my-0 md:my-2 py-4 border-1 border-gray-100 rounded-md shadow-md shadow-gray-300 cursor-pointer hover:bg-sky-300 hover:text-white hover:border-none"
         :class="
-          filter.id === curFilter.id
+          currentFilterIndex === idx
             ? `bg-sky-500 text-white border-none pointer-events-none`
             : `bg-white text-black`
         "
-        @click="setFilter(filter.id)"
+        @click="handleClickProgressFilter(idx)"
       >
         {{ filter.text }}
       </li>

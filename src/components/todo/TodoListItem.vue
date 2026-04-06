@@ -2,39 +2,41 @@
 import { DateUtil } from "@/libs/DateUtil";
 import { computed, ref } from "vue";
 import TodoEditModal from "./TodoEditModal.vue";
-
-const emit = defineEmits([
-  "toggle-todo-progress",
-  "delete-todo",
-  "edit-todo",
-  "select-todo",
-]);
+import { useTodoListItem } from "./useTodoListItem";
 
 const { todo, selected } = defineProps({
   todo: {
     id: Number,
     title: String,
     progress: String,
+    until: Number,
+    createdAt: Number,
+    labels: Array,
   },
   selected: Boolean,
 });
 
+const emit = defineEmits(["select-item", "delete-item", "update-item"]);
+
+const itemState = useTodoListItem({ todo: todo, emit });
+const { id, title, progress, until, labels } = itemState;
+
 const modifying = ref(false);
 
 const untilDateString = computed(() => {
-  const until = todo.until;
-  const year = until.getFullYear().toString();
-  const month = (until.getMonth() + 1).toString();
-  const day = until.getDate().toString();
-  const hour = until.getHours().toString();
-  const ampm = DateUtil.getAmPmString(until);
-  const minute = DateUtil.getMinuteString(until);
+  const untilDate = new Date(until.value);
+  const year = untilDate.getFullYear().toString();
+  const month = (untilDate.getMonth() + 1).toString();
+  const day = untilDate.getDate().toString();
+  const hour = untilDate.getHours().toString();
+  const ampm = DateUtil.getAmPmString(untilDate);
+  const minute = DateUtil.getMinuteString(untilDate);
 
   return `${year}년 ${month}월 ${day}일 ${hour}:${minute} ${ampm}`;
 });
 
 const progressIcon = computed(() => {
-  switch (todo.progress) {
+  switch (progress.value) {
     case "wait":
       return "snooze";
     case "ongoing":
@@ -46,27 +48,15 @@ const progressIcon = computed(() => {
   }
 });
 
-const toggleTodoProgress = () => {
-  emit("toggle-todo-progress", todo.id);
-};
-
-const deleteTodo = () => {
-  emit("delete-todo", todo.id);
-};
-
-const handleSelectTodo = () => {
-  emit("select-todo", todo.id);
-};
-
 const handleStartEdit = () => {
   if (!modifying.value) {
-    if (todo.progress === "completed") return;
+    if (progress.value === "completed") return;
     modifying.value = true;
   }
 };
 
 const handleEndEdit = (update) => {
-  emit("edit-todo", todo.id, update);
+  itemState.update(update);
   modifying.value = false;
 };
 
@@ -84,27 +74,27 @@ const handleCancelEdit = () => {
     >
       <input
         type="checkbox"
-        :id="`chk-${todo.id}`"
+        :id="`chk-${id}`"
         :checked="selected"
-        @input="handleSelectTodo"
+        @input="handleSelect"
       />
-      <label :for="`chk-${todo.id}`"></label>
+      <label :for="`chk-${id}`"></label>
     </div>
     <div class="grow-2 basis-16 text-center text-ellipsis overflow-hidden">
-      {{ todo.title }}
+      {{ title }}
     </div>
     <div
       class="flex h-full flex-row flex-wrap justify-start items-start gap-2 grow-1 basis-16 overflow-x-hidden overflow-y-scroll"
     >
       <div
         class="bg-yellow-400 text-xs text-center text-nowrap text-ellipsis px-3 py-1 rounded-full overflow-hidden"
-        v-for="label in todo.labels"
+        v-for="label in labels"
       >
         {{ label }}
       </div>
     </div>
     <div class="flex flex-col justify-center grow-1 basis-16 text-center">
-      <span class="material-symbols-rounded" :class="todo.progress">
+      <span class="material-symbols-rounded" :class="progress">
         {{ progressIcon }}
       </span>
     </div>
@@ -114,13 +104,13 @@ const handleCancelEdit = () => {
     <div
       class="flex flex-row justify-center items-center grow-1 basis-16 text-center"
     >
-      <span class="material-symbols-outlined" @click="toggleTodoProgress"
+      <span class="material-symbols-outlined" @click="itemState.toggleProgress"
         >check</span
       >
       <span class="material-symbols-outlined" @click="handleStartEdit"
         >edit</span
       >
-      <span class="material-symbols-outlined" @click="deleteTodo">
+      <span class="material-symbols-outlined" @click="itemState.delete">
         delete
       </span>
     </div>
