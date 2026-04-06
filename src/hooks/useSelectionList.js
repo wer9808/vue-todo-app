@@ -1,4 +1,4 @@
-import { ref, unref } from "vue";
+import { ref, unref, computed } from "vue";
 
 export const useSelectionList = (equals) => {
   const _selectedItems = ref([]);
@@ -48,13 +48,13 @@ export const useSelectionList = (equals) => {
     _selectedItems.value = [];
   };
 
-  const _setSelectedItems = (items) => {
+  const _selectAll = (items) => {
     _selectedItems.value = items;
   };
 
   return {
     items: _selectedItems,
-    set: _setSelectedItems,
+    selectAll: _selectAll,
     find: _find,
     select: _select,
     unselect: _unselect,
