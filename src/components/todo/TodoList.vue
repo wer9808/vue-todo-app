@@ -4,11 +4,11 @@ import TodoListItem from "./TodoListItem.vue";
 import { useTodoContainer } from "@/components/todo/useTodoContainer";
 import { useTodoStore } from "@/stores/TodoStore";
 
-const todoContainerStore = useTodoContainer();
+const containerState = useTodoContainer();
 const todoStore = useTodoStore();
-const items = todoContainerStore.displayItems;
+const items = containerState.displayItems;
 
-const selectionList = todoContainerStore.selectionList;
+const selectionList = containerState.selectionList;
 const selectedItems = selectionList.items;
 
 const canMultiChange = computed(() => selectedItems.value.length > 0);

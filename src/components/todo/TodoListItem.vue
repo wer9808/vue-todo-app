@@ -18,7 +18,12 @@ const { todo, selected } = defineProps({
 
 const emit = defineEmits(["select-item", "delete-item", "update-item"]);
 
-const itemState = useTodoListItem({ todo: todo, emit });
+const itemState = useTodoListItem({
+  todo: todo,
+  onDelete: (id) => emit("delete-item", id),
+  onSelect: (id) => emit("select-item", id),
+  onUpdate: (id, update) => emit("update-item", id, update),
+});
 const { id, title, progress, until, labels } = itemState;
 
 const modifying = ref(false);
@@ -76,7 +81,7 @@ const handleCancelEdit = () => {
         type="checkbox"
         :id="`chk-${id}`"
         :checked="selected"
-        @input="handleSelect"
+        @input="itemState.select"
       />
       <label :for="`chk-${id}`"></label>
     </div>

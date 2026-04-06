@@ -1,6 +1,6 @@
 import { computed } from "vue";
 
-export const useTodoListItem = ({ todo, emit }) => {
+export const useTodoListItem = ({ todo, onDelete, onSelect, onUpdate }) => {
   const _todo = todo;
   const _id = computed(() => _todo.id);
   const _title = computed(() => _todo.title);
@@ -18,19 +18,19 @@ export const useTodoListItem = ({ todo, emit }) => {
     } else if (nextProgress === "completed") {
       nextProgress = "wait";
     }
-    emit("update-item", _id.value, { progress: nextProgress });
+    onUpdate(_id.value, { progress: nextProgress });
   };
 
   const deleteItem = () => {
-    emit("delete-item", _id.value);
+    onDelete(_id.value);
   };
 
   const selectItem = () => {
-    emit("select-item", _id.value);
+    onSelect(_id.value);
   };
 
   const updateItem = (update) => {
-    emit("update-item", _id.value, update);
+    onUpdate(_id.value, update);
   };
 
   return {
