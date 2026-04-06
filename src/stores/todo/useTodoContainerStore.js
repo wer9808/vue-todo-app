@@ -1,12 +1,12 @@
 import { ref, computed, watch } from "vue";
-import { useTodoStore } from "@/stores/TodoStore";
+import { useTodoStore } from "@/stores/todo/useTodoStore";
 import { TextAttributeFilter } from "@/libs/filters/Filter";
 import { useSelectionList } from "@/hooks/useSelectionList";
 import TodoModel from "@/models/TodoModel";
 import { useProgressFilterSet } from "@/hooks/useFilterSet";
 import { defineStore } from "pinia";
 
-export const useTodoContainer = defineStore("todo-container", () => {
+export const useTodoContainerStore = defineStore("todo-container", () => {
   const _todoStore = useTodoStore();
 
   const _selectionList = useSelectionList(TodoModel.equals);

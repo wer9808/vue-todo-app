@@ -1,20 +1,20 @@
 <script setup>
 import { computed, useTemplateRef, watchEffect } from "vue";
-import TodoListItem from "./TodoListItem.vue";
-import { useTodoContainer } from "@/components/todo/useTodoContainer";
-import { useTodoStore } from "@/stores/TodoStore";
+import TodoListItem from "@/components/todo/item/TodoListItem.vue";
+import { useTodoContainerStore } from "@/stores/todo/useTodoContainerStore";
+import { useTodoStore } from "@/stores/todo/useTodoStore";
 
-const containerState = useTodoContainer();
+const containerStore = useTodoContainerStore();
 const todoStore = useTodoStore();
 const canMultiChange = computed(
-  () => containerState.selection.items.length > 0,
+  () => containerStore.selection.items.length > 0,
 );
 const canMultiDelete = computed(
-  () => containerState.selection.items.length > 0,
+  () => containerStore.selection.items.length > 0,
 );
 const allSelected = () => {
   return (
-    containerState.displayItems.length === containerState.selection.items.length
+    containerStore.displayItems.length === containerStore.selection.items.length
   );
 };
 
@@ -32,13 +32,13 @@ watchEffect(() => {
 });
 
 const isSelected = (todo) => {
-  return containerState.selection.find(todo) ? true : false;
+  return containerStore.selection.find(todo) ? true : false;
 };
 
 const handleSelectItem = (todoId) => {
   const todo = todoStore.find(todoId);
   if (todo) {
-    containerState.selection.toggle(todo);
+    containerStore.selection.toggle(todo);
   }
 };
 
@@ -52,21 +52,21 @@ const handleUpdateItem = (todoId, update) => {
 
 const handleSelectAll = () => {
   if (allSelected()) {
-    containerState.selection.clear();
+    containerStore.selection.clear();
   } else {
-    containerState.selection.selectAll([...containerState.displayItems]);
+    containerStore.selection.selectAll([...containerStore.displayItems]);
   }
 };
 
 const handleMultiDelete = () => {
-  containerState.selection.items.forEach((item) => {
+  containerStore.selection.items.forEach((item) => {
     todoStore.delete(item.id);
   });
 };
 
 const handleMultiProgressChange = ($e) => {
   const progress = $e.target.value;
-  containerState.selection.items.forEach((item) => {
+  containerStore.selection.items.forEach((item) => {
     todoStore.update(item.id, { progress });
   });
 };
@@ -115,7 +115,7 @@ const handleMultiProgressChange = ($e) => {
         <div class="grow-1 text-center basis-16">수정 / 삭제</div>
       </div>
       <TodoListItem
-        v-for="(item, idx) in containerState.displayItems"
+        v-for="(item, idx) in containerStore.displayItems"
         :key="item.id"
         :todo="item"
         :selected="isSelected(item)"

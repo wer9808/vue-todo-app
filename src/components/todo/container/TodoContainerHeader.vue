@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
-import { useTodoContainer } from "@/components/todo/useTodoContainer";
+import { useTodoContainerStore } from "@/stores/todo/useTodoContainerStore";
 
 class ProgressFilterItem {
   constructor(key, text, value) {
@@ -22,7 +22,7 @@ const currentFilter = computed(() => {
   return progressFilters[currentFilterIndex.value];
 });
 
-const containerState = useTodoContainer();
+const containerStore = useTodoContainerStore();
 
 const now = ref(new Date());
 
@@ -31,12 +31,12 @@ const dateString = computed(() => now.value.toDateString());
 
 const handleSearchInput = ($e) => {
   const searchText = $e.target.value;
-  containerState.filter.title(searchText);
+  containerStore.filter.title(searchText);
 };
 
 const handleClickProgressFilter = (index) => {
   currentFilterIndex.value = index;
-  containerState.filter.progress(currentFilter.value.value);
+  containerStore.filter.progress(currentFilter.value.value);
 };
 
 // 시간 갱신 타이머 핸들

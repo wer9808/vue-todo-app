@@ -1,5 +1,5 @@
 <script setup>
-import TodoContainer from "@/components/todo/TodoContainer.vue";
+import TodoContainer from "@/components/todo/container/TodoContainer.vue";
 </script>
 
 <template>
