@@ -4,8 +4,9 @@ import { TextAttributeFilter } from "@/libs/filters/Filter";
 import { useSelectionList } from "@/hooks/useSelectionList";
 import TodoModel from "@/models/TodoModel";
 import { useProgressFilterSet } from "@/hooks/useFilterSet";
+import { defineStore } from "pinia";
 
-export const useTodoContainer = () => {
+export const useTodoContainer = defineStore("todo-container", () => {
   const _todoStore = useTodoStore();
 
   const _selectionList = useSelectionList(TodoModel.equals);
@@ -29,16 +30,49 @@ export const useTodoContainer = () => {
     return todos;
   });
 
+  // 필터 변경 시 선택 아이템 초기화
+  watch(_displayTodos, (current, old) => {
+    if (current != old) {
+      _selectionList.clear();
+    }
+  });
+
+  // 아이템 변화 시 표시 목록에서 사라진 선택 아이템 초기화
+  watch(_displayTodos, (current, old) => {
+    if (current.length != old.length) {
+      old.forEach((oldTodo) => {
+        _selectionList.unselect(oldTodo);
+      });
+    }
+  });
+
+  const _filter = {
+    progress(value) {
+      _progressFilterSet.choose(value);
+      let todos = _todoStore.items;
+      const filterByProgress = _progressFilterSet.filter.value;
+      todos = filterByProgress(todos);
+      console.log(todos);
+    },
+    title(value) {
+      _searchTitle.value = value;
+      console.log(_displayTodos);
+    },
+  };
+
+  const _selection = {
+    items: _selectionList.items,
+    select: _selectionList.select,
+    selectAll: _selectionList.selectAll,
+    find: _selectionList.find,
+    unselect: _selectionList.unselect,
+    toggle: _selectionList.toggle,
+    clear: _selectionList.clear,
+  };
+
   return {
     displayItems: _displayTodos,
-    filter: {
-      progress(value) {
-        _progressFilterSet.choose(value);
-      },
-      title(value) {
-        _searchTitle.value = value;
-      },
-    },
-    selectionList: _selectionList,
+    filter: _filter,
+    selection: _selection,
   };
-};
+});
