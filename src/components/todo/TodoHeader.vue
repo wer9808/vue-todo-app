@@ -22,7 +22,7 @@ const currentFilter = computed(() => {
   return progressFilters[currentFilterIndex.value];
 });
 
-const todoContainerStore = useTodoContainer();
+const containerState = useTodoContainer();
 
 const now = ref(new Date());
 
@@ -31,12 +31,12 @@ const dateString = computed(() => now.value.toDateString());
 
 const handleSearchInput = ($e) => {
   const searchText = $e.target.value;
-  todoContainerStore.filter.title(searchText);
+  containerState.filter.title(searchText);
 };
 
 const handleClickProgressFilter = (index) => {
   currentFilterIndex.value = index;
-  todoContainerStore.filter.progress(currentFilter.value.value);
+  containerState.filter.progress(currentFilter.value.value);
 };
 
 // 시간 갱신 타이머 핸들

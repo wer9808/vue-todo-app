@@ -1,24 +1,27 @@
-import { reactive, unref } from "vue";
+import { defineStore } from "pinia";
+import { computed, reactive, unref } from "vue";
 import { todoStorage } from "@/storages/TodoStorage";
 import TodoModel from "@/models/TodoModel";
 
-const savedTodos = todoStorage
-  .selectAll()
-  .map((storeTodo) => TodoModel.fromSerialized(storeTodo));
-const allTodos = reactive(savedTodos);
+export const useTodoStore = defineStore("todo-store", () => {
+  const _savedTodos = todoStorage
+    .selectAll()
+    .map((storeTodo) => TodoModel.fromSerialized(storeTodo));
+  const _allTodos = reactive(_savedTodos);
 
-export const useTodoStore = () => {
+  const _items = computed(() => _allTodos);
+
   const _findFrom = (todoId, todos) => {
     return todos.find((todo) => todo.id === todoId);
   };
 
   const _find = (todoId) => {
-    return _findFrom(todoId, allTodos);
+    return _findFrom(todoId, _allTodos);
   };
 
   const _create = ({ title, until }) => {
     const newTodo = TodoModel.create({ title, until });
-    allTodos.push(newTodo);
+    _allTodos.push(newTodo);
     todoStorage.upsert(newTodo);
   };
 
@@ -36,16 +39,16 @@ export const useTodoStore = () => {
   const _delete = (todoId) => {
     const todo = _find(todoId);
     if (!todo) return;
-    const idx = allTodos.indexOf(todo);
-    allTodos.splice(idx, 1);
+    const idx = _allTodos.indexOf(todo);
+    _allTodos.splice(idx, 1);
     todoStorage.delete(todo);
   };
 
   return {
-    items: allTodos,
+    items: _items,
     find: _find,
     create: _create,
     update: _update,
     delete: _delete,
   };
-};
+});
