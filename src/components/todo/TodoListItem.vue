@@ -1,7 +1,8 @@
 <script setup>
 import { DateUtil } from "@/libs/DateUtil";
-import { computed, reactive, ref } from "vue";
+import { computed, ref } from "vue";
 import TodoEditModal from "./TodoEditModal.vue";
+import { useTodoListItem } from "./useTodoListItem";
 
 const { todo, selected } = defineProps({
   todo: {
@@ -17,16 +18,13 @@ const { todo, selected } = defineProps({
 
 const emit = defineEmits(["select-item", "delete-item", "update-item"]);
 
-const todoId = computed(() => todo.id);
-const todoTitle = computed(() => todo.title);
-const todoProgress = computed(() => todo.progress);
-const todoUntil = computed(() => todo.until);
-const todoLabels = computed(() => todo.labels);
+const itemState = useTodoListItem({ todo: todo, emit });
+const { id, title, progress, until, labels } = itemState;
 
 const modifying = ref(false);
 
 const untilDateString = computed(() => {
-  const untilDate = new Date(todoUntil.value);
+  const untilDate = new Date(until.value);
   const year = untilDate.getFullYear().toString();
   const month = (untilDate.getMonth() + 1).toString();
   const day = untilDate.getDate().toString();
@@ -38,7 +36,7 @@ const untilDateString = computed(() => {
 });
 
 const progressIcon = computed(() => {
-  switch (todoProgress.value) {
+  switch (progress.value) {
     case "wait":
       return "snooze";
     case "ongoing":
@@ -50,35 +48,15 @@ const progressIcon = computed(() => {
   }
 });
 
-const handleToggleProgress = () => {
-  let nextProgress = todoProgress.value;
-  if (nextProgress === "wait") {
-    nextProgress = "ongoing";
-  } else if (nextProgress === "ongoing") {
-    nextProgress = "completed";
-  } else if (nextProgress === "completed") {
-    nextProgress = "wait";
-  }
-  emit("update-item", todoId.value, { progress: nextProgress });
-};
-
-const handleDelete = () => {
-  emit("delete-item", todoId.value);
-};
-
-const handleSelect = () => {
-  emit("select-item", todoId.value);
-};
-
 const handleStartEdit = () => {
   if (!modifying.value) {
-    if (todoProgress.value === "completed") return;
+    if (progress.value === "completed") return;
     modifying.value = true;
   }
 };
 
 const handleEndEdit = (update) => {
-  emit("update-item", todoId.value, update);
+  itemState.update(update);
   modifying.value = false;
 };
 
@@ -96,27 +74,27 @@ const handleCancelEdit = () => {
     >
       <input
         type="checkbox"
-        :id="`chk-${todoId}`"
+        :id="`chk-${id}`"
         :checked="selected"
         @input="handleSelect"
       />
-      <label :for="`chk-${todoId}`"></label>
+      <label :for="`chk-${id}`"></label>
     </div>
     <div class="grow-2 basis-16 text-center text-ellipsis overflow-hidden">
-      {{ todoTitle }}
+      {{ title }}
     </div>
     <div
       class="flex h-full flex-row flex-wrap justify-start items-start gap-2 grow-1 basis-16 overflow-x-hidden overflow-y-scroll"
     >
       <div
         class="bg-yellow-400 text-xs text-center text-nowrap text-ellipsis px-3 py-1 rounded-full overflow-hidden"
-        v-for="label in todoLabels"
+        v-for="label in labels"
       >
         {{ label }}
       </div>
     </div>
     <div class="flex flex-col justify-center grow-1 basis-16 text-center">
-      <span class="material-symbols-rounded" :class="todoProgress">
+      <span class="material-symbols-rounded" :class="progress">
         {{ progressIcon }}
       </span>
     </div>
@@ -126,13 +104,13 @@ const handleCancelEdit = () => {
     <div
       class="flex flex-row justify-center items-center grow-1 basis-16 text-center"
     >
-      <span class="material-symbols-outlined" @click="handleToggleProgress"
+      <span class="material-symbols-outlined" @click="itemState.toggleProgress"
         >check</span
       >
       <span class="material-symbols-outlined" @click="handleStartEdit"
         >edit</span
       >
-      <span class="material-symbols-outlined" @click="handleDelete">
+      <span class="material-symbols-outlined" @click="itemState.delete">
         delete
       </span>
     </div>

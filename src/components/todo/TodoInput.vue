@@ -1,6 +1,5 @@
 <script setup>
 import { DateUtil } from "@/libs/DateUtil";
-import { useTodoContainerStore } from "@/stores/TodoContainerStore";
 import { useTodoStore } from "@/stores/TodoStore";
 import { computed, ref } from "vue";
 

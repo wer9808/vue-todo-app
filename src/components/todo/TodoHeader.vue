@@ -1,6 +1,6 @@
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
-import { useTodoContainerStore } from "@/stores/TodoContainerStore";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useTodoContainer } from "@/components/todo/useTodoContainer";
 
 class ProgressFilterItem {
   constructor(key, text, value) {
@@ -22,7 +22,7 @@ const currentFilter = computed(() => {
   return progressFilters[currentFilterIndex.value];
 });
 
-const todoContainerStore = useTodoContainerStore();
+const todoContainerStore = useTodoContainer();
 
 const now = ref(new Date());
 

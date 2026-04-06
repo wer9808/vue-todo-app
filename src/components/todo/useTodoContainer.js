@@ -1,6 +1,6 @@
 import { ref, computed, watch } from "vue";
-import { useTodoStore } from "./TodoStore";
-import { AttributeFilter, TextAttributeFilter } from "@/libs/filters/Filter";
+import { useTodoStore } from "../../stores/TodoStore";
+import { TextAttributeFilter } from "@/libs/filters/Filter";
 import { useSelectionList } from "@/hooks/useSelectionList";
 import TodoModel from "@/models/TodoModel";
 import { useProgressFilterSet } from "@/hooks/useFilterSet";
@@ -28,7 +28,7 @@ const _displayTodos = computed(() => {
   return todos;
 });
 
-export const useTodoContainerStore = () => {
+export const useTodoContainer = () => {
   return {
     displayItems: _displayTodos,
     filter: {

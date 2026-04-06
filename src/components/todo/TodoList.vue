@@ -1,10 +1,10 @@
 <script setup>
-import { ref, computed, watch, useTemplateRef, watchEffect } from "vue";
+import { computed, useTemplateRef, watchEffect } from "vue";
 import TodoListItem from "./TodoListItem.vue";
-import { useTodoContainerStore } from "@/stores/TodoContainerStore";
+import { useTodoContainer } from "@/components/todo/useTodoContainer";
 import { useTodoStore } from "@/stores/TodoStore";
 
-const todoContainerStore = useTodoContainerStore();
+const todoContainerStore = useTodoContainer();
 const todoStore = useTodoStore();
 const items = todoContainerStore.displayItems;
 
