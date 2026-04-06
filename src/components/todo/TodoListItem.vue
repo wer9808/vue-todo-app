@@ -1,40 +1,44 @@
 <script setup>
 import { DateUtil } from "@/libs/DateUtil";
-import { computed, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import TodoEditModal from "./TodoEditModal.vue";
-
-const emit = defineEmits([
-  "toggle-todo-progress",
-  "delete-todo",
-  "edit-todo",
-  "select-todo",
-]);
 
 const { todo, selected } = defineProps({
   todo: {
     id: Number,
     title: String,
     progress: String,
+    until: Number,
+    createdAt: Number,
+    labels: Array,
   },
   selected: Boolean,
 });
 
+const emit = defineEmits(["select-item", "delete-item", "update-item"]);
+
+const todoId = computed(() => todo.id);
+const todoTitle = computed(() => todo.title);
+const todoProgress = computed(() => todo.progress);
+const todoUntil = computed(() => todo.until);
+const todoLabels = computed(() => todo.labels);
+
 const modifying = ref(false);
 
 const untilDateString = computed(() => {
-  const until = todo.until;
-  const year = until.getFullYear().toString();
-  const month = (until.getMonth() + 1).toString();
-  const day = until.getDate().toString();
-  const hour = until.getHours().toString();
-  const ampm = DateUtil.getAmPmString(until);
-  const minute = DateUtil.getMinuteString(until);
+  const untilDate = new Date(todoUntil.value);
+  const year = untilDate.getFullYear().toString();
+  const month = (untilDate.getMonth() + 1).toString();
+  const day = untilDate.getDate().toString();
+  const hour = untilDate.getHours().toString();
+  const ampm = DateUtil.getAmPmString(untilDate);
+  const minute = DateUtil.getMinuteString(untilDate);
 
   return `${year}년 ${month}월 ${day}일 ${hour}:${minute} ${ampm}`;
 });
 
 const progressIcon = computed(() => {
-  switch (todo.progress) {
+  switch (todoProgress.value) {
     case "wait":
       return "snooze";
     case "ongoing":
@@ -46,27 +50,35 @@ const progressIcon = computed(() => {
   }
 });
 
-const toggleTodoProgress = () => {
-  emit("toggle-todo-progress", todo.id);
+const handleToggleProgress = () => {
+  let nextProgress = todoProgress.value;
+  if (nextProgress === "wait") {
+    nextProgress = "ongoing";
+  } else if (nextProgress === "ongoing") {
+    nextProgress = "completed";
+  } else if (nextProgress === "completed") {
+    nextProgress = "wait";
+  }
+  emit("update-item", todoId.value, { progress: nextProgress });
 };
 
-const deleteTodo = () => {
-  emit("delete-todo", todo.id);
+const handleDelete = () => {
+  emit("delete-item", todoId.value);
 };
 
-const handleSelectTodo = () => {
-  emit("select-todo", todo.id);
+const handleSelect = () => {
+  emit("select-item", todoId.value);
 };
 
 const handleStartEdit = () => {
   if (!modifying.value) {
-    if (todo.progress === "completed") return;
+    if (todoProgress.value === "completed") return;
     modifying.value = true;
   }
 };
 
 const handleEndEdit = (update) => {
-  emit("edit-todo", todo.id, update);
+  emit("update-item", todoId.value, update);
   modifying.value = false;
 };
 
@@ -84,27 +96,27 @@ const handleCancelEdit = () => {
     >
       <input
         type="checkbox"
-        :id="`chk-${todo.id}`"
+        :id="`chk-${todoId}`"
         :checked="selected"
-        @input="handleSelectTodo"
+        @input="handleSelect"
       />
-      <label :for="`chk-${todo.id}`"></label>
+      <label :for="`chk-${todoId}`"></label>
     </div>
     <div class="grow-2 basis-16 text-center text-ellipsis overflow-hidden">
-      {{ todo.title }}
+      {{ todoTitle }}
     </div>
     <div
       class="flex h-full flex-row flex-wrap justify-start items-start gap-2 grow-1 basis-16 overflow-x-hidden overflow-y-scroll"
     >
       <div
         class="bg-yellow-400 text-xs text-center text-nowrap text-ellipsis px-3 py-1 rounded-full overflow-hidden"
-        v-for="label in todo.labels"
+        v-for="label in todoLabels"
       >
         {{ label }}
       </div>
     </div>
     <div class="flex flex-col justify-center grow-1 basis-16 text-center">
-      <span class="material-symbols-rounded" :class="todo.progress">
+      <span class="material-symbols-rounded" :class="todoProgress">
         {{ progressIcon }}
       </span>
     </div>
@@ -114,13 +126,13 @@ const handleCancelEdit = () => {
     <div
       class="flex flex-row justify-center items-center grow-1 basis-16 text-center"
     >
-      <span class="material-symbols-outlined" @click="toggleTodoProgress"
+      <span class="material-symbols-outlined" @click="handleToggleProgress"
         >check</span
       >
       <span class="material-symbols-outlined" @click="handleStartEdit"
         >edit</span
       >
-      <span class="material-symbols-outlined" @click="deleteTodo">
+      <span class="material-symbols-outlined" @click="handleDelete">
         delete
       </span>
     </div>

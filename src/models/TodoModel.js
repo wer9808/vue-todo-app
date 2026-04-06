@@ -43,9 +43,8 @@ class TodoModel {
 
   static create({ title, until }) {
     const id = crypto.randomUUID();
-    const untilCopy = new Date(until.getTime());
     const now = new Date();
-    return new TodoModel(id, title, "wait", untilCopy, now);
+    return new TodoModel(id, title, "wait", until.getTime(), now.getTime());
   }
 
   serialize() {
@@ -53,8 +52,8 @@ class TodoModel {
       id: this.id,
       title: this.title,
       progress: this.progress,
-      until: this.until.getTime(),
-      createdAt: this.createdAt.getTime(),
+      until: this.until,
+      createdAt: this.createdAt,
       content: this.content,
       labels: this.labels,
     };
@@ -65,8 +64,8 @@ class TodoModel {
       id: todo.id,
       title: todo.title,
       progress: todo.progress,
-      until: todo.until.getTime(),
-      createdAt: todo.createdAt.getTime(),
+      until: todo.until,
+      createdAt: todo.createdAt,
       content: todo.content,
       labels: todo.labels,
     };
@@ -77,8 +76,8 @@ class TodoModel {
       serializedTodo.id,
       serializedTodo.title,
       serializedTodo.progress,
-      new Date(serializedTodo.until),
-      new Date(serializedTodo.createdAt),
+      serializedTodo.until,
+      serializedTodo.createdAt,
       serializedTodo.content,
       serializedTodo.labels,
     );

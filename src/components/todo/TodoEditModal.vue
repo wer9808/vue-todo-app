@@ -22,7 +22,7 @@ const toTimeInputValue = (datetime) => {
 
 const inputTitle = ref(todo.title);
 
-const until = new Date(todo.until.getTime());
+const until = new Date(todo.until);
 
 const inputDateValue = ref(toDateInputValue(until));
 const inputTimeValue = ref(toTimeInputValue(until));
@@ -84,7 +84,7 @@ const endEdit = () => {
 
   const update = {
     title: inputTitle.value,
-    until: selectedDateTime,
+    until: selectedDateTime.value.getTime(),
     labels: labels,
   };
   emit("end-edit", update);

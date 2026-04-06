@@ -1,8 +1,10 @@
 <script setup>
 import { DateUtil } from "@/libs/DateUtil";
+import { useTodoContainerStore } from "@/stores/TodoContainerStore";
+import { useTodoStore } from "@/stores/TodoStore";
 import { computed, ref } from "vue";
 
-const emit = defineEmits(["add-todo"]);
+const todoStore = useTodoStore();
 
 const toDateInputValue = (datetime) => {
   const yearStr = datetime.getFullYear().toString();
@@ -58,12 +60,12 @@ const handleTimeInput = ($e) => {
   inputTimeValue.value = $e.target.value;
 };
 
-const addTodo = () => {
+const handleSubmit = () => {
   if (!selectedDateTime.value) return;
   const now = new Date();
-  const minimum = 60 * 1000;
+  const minimum = 1 * 1000;
   if (selectedDateTime.value.getTime() < now.getTime() + minimum) {
-    alert("최소 한 시간 이후 날짜를 선택해주세요");
+    alert("현재 시간 이후 날짜를 선택해주세요");
     return;
   }
   const title = todoTitle.value.trim();
@@ -71,7 +73,7 @@ const addTodo = () => {
     alert("할 일을 입력해주세요");
     return;
   }
-  emit("add-todo", {
+  todoStore.create({
     title: todoTitle.value,
     until: selectedDateTime.value,
   });
@@ -105,7 +107,7 @@ const addTodo = () => {
     />
     <button
       class="flex-1 w-full max-w-xs sm:flex-none sm:basis-24 bg-blue-400 text-white px-4 py-2 border-none rounded-full cursor-pointer hover:bg-blue-300"
-      @click="addTodo"
+      @click="handleSubmit"
     >
       등록
     </button>

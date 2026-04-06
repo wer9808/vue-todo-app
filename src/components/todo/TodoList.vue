@@ -1,31 +1,20 @@
 <script setup>
 import { ref, computed, watch, useTemplateRef, watchEffect } from "vue";
 import TodoListItem from "./TodoListItem.vue";
+import { useTodoContainerStore } from "@/stores/TodoContainerStore";
+import { useTodoStore } from "@/stores/TodoStore";
 
-const emit = defineEmits([
-  "toggle-todo-progress",
-  "delete-todo",
-  "edit-todo",
-  "select-todo",
-  "select-multi-todos",
-  "change-selected-todos",
-  "delete-selected-todos",
-]);
+const todoContainerStore = useTodoContainerStore();
+const todoStore = useTodoStore();
+const items = todoContainerStore.displayItems;
 
-const { items, selectedItems } = defineProps(["items", "selectedItems"]);
+const selectionList = todoContainerStore.selectionList;
+const selectedItems = selectionList.items;
 
 const canMultiChange = computed(() => selectedItems.value.length > 0);
 const canMultiDelete = computed(() => selectedItems.value.length > 0);
 const allSelected = () => {
-  return items.length === selectedItems.value.length;
-};
-
-const isSelected = (item) => {
-  return (
-    selectedItems.value.findIndex(
-      (selectedItem) => item.id === selectedItem.id,
-    ) >= 0
-  );
+  return items.value.length === selectedItems.value.length;
 };
 
 const progressSelect = useTemplateRef("todo-progress-select");
@@ -41,25 +30,44 @@ watchEffect(() => {
   }
 });
 
-const castEvent = (eventName) => {
-  return (...args) => {
-    emit(eventName, ...args);
-  };
+const isSelected = (todo) => {
+  return selectionList.find(todo) ? true : false;
 };
 
-const handleToggleTodoProgress = castEvent("toggle-todo-progress");
-const handleDeleteTodo = castEvent("delete-todo");
-const handleEditTodo = castEvent("edit-todo");
-const handleSelectTodo = castEvent("select-todo");
-const handleMultiDelete = castEvent("delete-selected-todos");
+const handleSelectItem = (todoId) => {
+  const todo = todoStore.find(todoId);
+  if (todo) {
+    selectionList.toggle(todo);
+  }
+};
+
+const handleDeleteItem = (todoId) => {
+  todoStore.delete(todoId);
+};
+
+const handleUpdateItem = (todoId, update) => {
+  todoStore.update(todoId, update);
+};
+
 const handleSelectAll = () => {
-  const todoIds = items.map((todo) => todo.id);
-  emit("select-multi-todos", todoIds, allSelected());
+  if (allSelected()) {
+    selectionList.clear();
+  } else {
+    selectionList.set([...items.value]);
+  }
+};
+
+const handleMultiDelete = () => {
+  selectedItems.value.forEach((item) => {
+    todoStore.delete(item.id);
+  });
 };
 
 const handleMultiProgressChange = ($e) => {
-  const value = $e.target.value;
-  emit("change-selected-todos", "progress", value);
+  const progress = $e.target.value;
+  selectedItems.value.forEach((item) => {
+    todoStore.update(item.id, { progress });
+  });
 };
 </script>
 
@@ -110,10 +118,9 @@ const handleMultiProgressChange = ($e) => {
         :key="item.id"
         :todo="item"
         :selected="isSelected(item)"
-        @toggle-todo-progress="handleToggleTodoProgress"
-        @delete-todo="handleDeleteTodo"
-        @edit-todo="handleEditTodo"
-        @select-todo="handleSelectTodo"
+        @select-item="handleSelectItem"
+        @delete-item="handleDeleteItem"
+        @update-item="handleUpdateItem"
       />
     </div>
     <!-- 할 일 목록이 없을 때 -->

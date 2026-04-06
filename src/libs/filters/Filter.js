@@ -1,8 +1,7 @@
 export class Filter {
-  constructor(id, text) {
-    this.id = id;
-    this.text = text;
-    this.filterType = "none";
+  constructor(name) {
+    this.name = name;
+    this.filterType = "default";
   }
 
   filter(itemArr) {
@@ -11,38 +10,43 @@ export class Filter {
 }
 
 export class AttributeFilter extends Filter {
-  constructor(id, attr, text) {
-    super(id, text);
+  constructor(name, attr) {
+    super(name);
     this.attr = attr;
     this.filterType = "attribute";
   }
 
   filter(itemArr) {
-    return [...itemArr.filter((item) => item[this.attr] === this.id)];
+    return [...itemArr.filter((item) => item[this.attr] === this.name)];
   }
 }
 
-export class TextSearchFilter extends Filter {
-  constructor(id, attr, text) {
-    super(id, text);
+export class TextAttributeFilter extends Filter {
+  constructor(name, attr, mode = "include") {
+    super(name);
     this.attr = attr;
     this.filterType = "textsearch";
-    this._search = "";
+    this._text = "";
+    this._mode = mode;
   }
 
   /**
    * @param {string} value
    */
-  set search(value) {
-    this._search = value;
+  set text(value) {
+    this._text = value;
   }
 
   filter(itemArr) {
+    return this.includeFilter(itemArr);
+  }
+
+  includeFilter(itemArr) {
     return [
       ...itemArr.filter(
         (item) =>
           typeof item[this.attr] === "string" &&
-          item[this.attr].includes(this._search),
+          item[this.attr].includes(this._text),
       ),
     ];
   }
